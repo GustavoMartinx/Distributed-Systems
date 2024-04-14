@@ -19,7 +19,9 @@ import java.io.*;
 import java.util.Scanner;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 public class TCPClient {
     public static void main(String args[]) {
@@ -71,7 +73,7 @@ public class TCPClient {
                             handleDeleteFileResponse(statusCode);
                             break;
                         case 0x03:
-                            // handleGetFilesListResponse(headerBuffer);
+                            handleGetFilesListResponse(headerBuffer, statusCode);
                             break;
                     }
                 }
@@ -122,7 +124,8 @@ public class TCPClient {
             return validCommand;
 
         } else if (splitedCommand[0].equals("GETFILESLIST") && splitedCommand.length == 1) {
-            // sendCommonRequests(output, (byte) 3, "");
+            commandIdentifier = (byte) 3;
+            executeGetFilesList(commandIdentifier, output);
             return validCommand;
 
         } else if (splitedCommand[0].equals("GETFILE") && splitedCommand.length == 2) {
@@ -197,6 +200,25 @@ public class TCPClient {
         byte[] headerBytes = getHeaderBytes(header);      // Converte o cabeçalho para bytes
         
         // Envio para o servidor do cabeçalho de requisição para deletar um arquivo
+        output.write(headerBytes);
+        output.flush();
+    } // executeDeleteFile
+
+    /**
+     * Metodo para executar o comando GETFILESLIST. O comando GETFILESLIST envia uma requisição para o servidor
+     * para obter a lista de arquivos do diretório 'Documents'.
+     * 
+     * @param commandIdentifier - Identificador do comando GETFILESLIST (0x03).
+     * @param output - Objeto de escrita.
+     * @throws IOException
+    */
+    private static void executeGetFilesList(byte commandIdentifier, DataOutputStream output) throws IOException {
+
+        // Criação do cabeçalho
+        ByteBuffer header = createHeader(commandIdentifier, (byte) 0, new byte[0]);
+        byte[] headerBytes = getHeaderBytes(header);      // Converte o cabeçalho para bytes
+        
+        // Envio para o servidor do cabeçalho de requisição para obter a lista de arquivos do diretório 'Documents'
         output.write(headerBytes);
         output.flush();
     }
@@ -306,7 +328,32 @@ public class TCPClient {
         }
     } // handleDeleteFileResponse
 
-    
-    // métodos para handle responses dos outros comandos aqui
+    private static void handleGetFilesListResponse(ByteBuffer header, byte statusCode) throws IOException {
+
+        if (statusCode == 0x01) {
+
+            // Lendo o número total de arquivos
+            short totalFiles = header.getShort();
+
+            // Lendo os nomes dos arquivos
+            List<String> fileNames = new ArrayList<>();
+            for (int i = 0; i < totalFiles; i++) {
+
+                byte nameLength = header.get();
+                byte[] nameBytes = new byte[nameLength];
+                header.get(nameBytes);
+                String fileName = new String(nameBytes);
+                fileNames.add(fileName);
+            }
+
+            // Exibindo os nomes dos arquivos
+            for (String fileName : fileNames) {
+                System.out.println(fileName);
+            }
+
+        } else {
+            System.out.println("Status: " + statusCode + " - There are no files in the 'Documents' directory.");
+        }    
+    }
 
 } // class

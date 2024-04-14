@@ -19,6 +19,8 @@ import java.io.IOException;
 import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.*;
 
 public class ListenerThread extends Thread {
@@ -122,7 +124,7 @@ public class ListenerThread extends Thread {
                     handleDeleteFile(filename, commandId, logger);
                     break;
                 case 3:
-                    // handleGetFilesList();
+                    handleGetFilesList(logger);
                     break;
                 case 4:
                     // handleGetFile(filename);
@@ -218,6 +220,38 @@ public class ListenerThread extends Thread {
         }
     } // handleDeleteFile
 
+    /**
+     * Este método trata a requisição GETFILESLIST no lado do servidor.
+     * 
+     * @param commandId - Identificador do comando (0x03 == GETFILESLIST).
+     * @param logger - Objeto de escrita (server.log).
+     * @throws IOException
+    **/
+    public void handleGetFilesList(Logger logger) throws IOException {
+
+        byte SUCCESS = (byte) 1;
+        byte ERROR = (byte) 2;
+
+        File directory = new File(this.serverPath);
+        File[] files = directory.listFiles();
+
+        if (files != null) {
+            
+            List<String> fileNames = new ArrayList<>();
+            for (File file : files) {
+                fileNames.add(file.getName());
+            }
+
+            getFilesListResponse(fileNames, SUCCESS);
+            logger.fine("Status code 1 - File list sent successfully!\n");
+        } else {
+            
+            List<String> fileNames = new ArrayList<>();
+            getFilesListResponse(fileNames, ERROR);
+            logger.warning("Status code 2 - There are no files in the 'Documents' directory.\n");
+        }
+    } // handleGetFilesList
+
 
     /**
      * Este método envia um cabeçalho de resposta comum para os comandos que não exigem
@@ -233,8 +267,48 @@ public class ListenerThread extends Thread {
         header.order(ByteOrder.BIG_ENDIAN);         // Definindo a ordem dos bytes como big endian
         header.put((byte) 2);                       // Tipo da mensagem (2 == Resposta)
         header.put(commandId);                      // Identificador do comando
-        header.put(status);                         // Status (1 == SUCCESS || 2 == ERROR)
-        this.output.write(header.array());               // Convertendo o cabeçalho para um array de bytes
+        header.put(status);                         // Status code (1 == SUCCESS || 2 == ERROR)
+        this.output.write(header.array());          // Convertendo o cabeçalho para um array de bytes
         this.output.flush();
-    }
+    } // commonResponse
+
+    /**
+     * Este método envia um cabeçalho de resposta para o comando GETFILESLIST, incluindo
+     * o número de arquivos e os nomes dos arquivos.
+     * 
+     * @param fileNames - Lista de nomes de arquivos.
+     * @throws IOException
+     */
+    private void getFilesListResponse(List<String> fileNames, byte status) throws IOException {
+        
+        // Calcula o tamanho total do cabeçalho (2 bytes para o número de arquivos + tamanho dos nomes)
+        int headerSize = 2;
+        for (String fileName : fileNames) {
+            headerSize += fileName.length() + 1; // 1 byte para o tamanho do nome
+        }
+
+        // Aloca o buffer com o tamanho total do cabeçalho e dos nomes dos arquivos
+        ByteBuffer header = ByteBuffer.allocate(3 + headerSize);
+        header.order(ByteOrder.BIG_ENDIAN); // Definindo a ordem dos bytes como big endian
+        header.put((byte) 2);               // Tipo da mensagem (2 == Resposta)
+        header.put((byte) 3);               // Identificador do comando GETFILESLIST
+        header.put(status);                 // Status code (1 == SUCCESS || 2 == ERROR)
+
+        // Adiciona o número total de arquivos ao cabeçalho
+        int totalFiles = fileNames.size();
+        header.putShort((short) totalFiles);
+
+        if (totalFiles > 0) {
+            // Adiciona os nomes dos arquivos ao cabeçalho
+            for (String fileName : fileNames) {
+                header.put((byte) fileName.length()); // Tamanho do nome do arquivo
+                header.put(fileName.getBytes());      // Nome do arquivo
+            }
+        }
+
+        // Envia o cabeçalho como um array de bytes
+        this.output.write(header.array());
+        this.output.flush();
+    } // getFilesListResponse
+
 }
