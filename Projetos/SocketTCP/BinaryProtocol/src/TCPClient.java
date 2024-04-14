@@ -45,9 +45,12 @@ public class TCPClient {
                 System.out.print("$ ");
                 buffer = reader.nextLine(); // lê mensagem via teclado
 
-                handleCommand(buffer, output);
+                boolean validCommand = handleCommand(buffer, output);
+                if (!validCommand) {
+                    continue;
+                }
 
-                // Response handler (modularizar?)
+                // Response handler (TODO: modularizar)
                 byte[] headerBytes = new byte[258];
                 in.read(headerBytes);
                 ByteBuffer headerBuffer = ByteBuffer.wrap(headerBytes);
@@ -97,24 +100,32 @@ public class TCPClient {
      * @param output - Stream de saída.
      * @throws IOException
      */
-    static void handleCommand(String command, DataOutputStream output) throws IOException {
+    static boolean handleCommand(String command, DataOutputStream output) throws IOException {
         String[] splitedCommand = command.split(" ");
+        boolean validCommand = true;
+        boolean invalidCommand = false;
 
         if (splitedCommand[0].equals("ADDFILE") && splitedCommand.length == 2) {
             String filename = splitedCommand[1];
             byte commandIdentifier = (byte) 1;
             executeAddFile(commandIdentifier, output, filename);
+            return validCommand;
 
         } else if (splitedCommand[0].equals("DELETE") && splitedCommand.length == 2) {
             // sendCommonRequests(output, (byte) 2, splitedCommand[1]);
+            return validCommand;
 
         } else if (splitedCommand[0].equals("GETFILESLIST") && splitedCommand.length == 1) {
             // sendCommonRequests(output, (byte) 3, "");
+            return validCommand;
 
         } else if (splitedCommand[0].equals("GETFILE") && splitedCommand.length == 2) {
             // sendGetFileRequest(output, (byte) 4, splitedCommand[1]);
+            return validCommand;
+
         } else {
             System.out.println("Command not found.");
+            return invalidCommand;
         }
     } // handleCommand
 
@@ -153,12 +164,20 @@ public class TCPClient {
             }
         } else {
             // Se o arquivo não existir, apenas o cabeçalho é enviado
-            System.out.println("Arquivo não encontrado: " + fileInCurrentDir);
+            System.out.println("File not found: " + fileInCurrentDir);
             output.write(headerBytes);
         }
 
         output.flush();
     } // executeAddFile
+
+
+    // métodos para execução dos outros comandos aqui
+
+
+
+
+
 
 
     /**
@@ -214,6 +233,13 @@ public class TCPClient {
         }
     }
 
+    
+    /**
+     * Método para tratar a resposta do servidor ao upload de um arquivo (comando ADDFILE).
+     *
+     * @param  statusCode - Resultado da operação de upload do arquivo.
+     * @throws IOException
+     */
     private static void handleAddFileResponse(byte statusCode) throws IOException{
         
         if(statusCode == 0x01) {
@@ -221,8 +247,14 @@ public class TCPClient {
         } else {
             System.out.println("Status: " + statusCode + " - Something went wrong when uploading the file.");
         }
-    }
+    } // handleAddFileResponse
 
+    /**
+     * Método para tratar a resposta do servidor ao deletar um arquivo (comando DELETE).
+     * 
+     * @param statusCode - Resultado da operação de deletar um arquivo.
+     * @throws IOException
+     */
     private static void handleDeleteFileResponse(byte statusCode) throws IOException {
         
         if (statusCode == 0x01) {
@@ -230,6 +262,8 @@ public class TCPClient {
         } else {
             System.out.println("Status: " + statusCode + " - Something went wrong when deleting the file.");
         }
-    }
+    } // handleDeleteFileResponse
+
+    // métodos para handle responses dos outros comandos aqui
 
 } // class

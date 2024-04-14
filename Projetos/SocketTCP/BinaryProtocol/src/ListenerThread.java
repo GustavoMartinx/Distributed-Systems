@@ -1,4 +1,13 @@
-
+/**
+ * ListenerThread: Thread responsável por receber e processar as requisições do
+ * servidor.
+ * 
+ * Autores: Diogo Rodrigues dos Santos e Gustavo Zanzin Guerreiro Martins
+ * 
+ * Data de criação: 07/04/2024
+ * 
+ * Datas de atualização: 11/04, 13/04, 14/04
+**/
 
 import java.io.BufferedWriter;
 import java.io.DataInputStream;
@@ -38,53 +47,27 @@ public class ListenerThread extends Thread {
         }
     } // constructor
 
+    /**
+     * Método executado ao inicializar o ListenerThread. Este método realiza a leitura dos
+     * cabeçalhos das requisições dos clientes e chama o método responsável por processá-las.
+     * 
+     */
     @Override
     public void run() {
 
-        try {
+        Logger logger = Logger.getLogger("server.log");  // Associa o arquivo de log ao objeto logger
+        logger.setLevel(Level.FINE);
 
+        try {
             while (true) {
 
-                // handle request (TODO: modularizar?)
+                // Recebendo e processando a requisição
                 byte[] request = new byte[258];
                 this.input.read(request);
+                processRequest(request, this.output, logger);
 
-                // Obtendo os dados do cabeçalho da requisição
-                ByteBuffer header = ByteBuffer.wrap(request);       // Cria um ByteBuffer a partir do array de bytes recebido
-                header.order(ByteOrder.BIG_ENDIAN);                 // Define a ordem dos bytes (BIG_ENDIAN)
-                byte messageType = header.get();                    // Obtém o tipo da mensagem (1 byte)
-                byte commandId = header.get();                      // Obtém o código do comando (1 byte)
-                byte filenameSize = header.get();                   // Obtém o tamanho do nome do arquivo (1 byte)
-
-                byte[] filenameBytes = new byte[filenameSize];      // Cria um array de bytes para o nome do arquivo
-                header.get(filenameBytes);                          // Obtém o nome do arquivo em bytes (tamanho variável)
-                String filename = new String(filenameBytes);        // Converte o nome do arquivo para String
-                Integer sizeOfContentFile = header.getInt();        // Obtém o tamanho do conteúdo do arquivo
-
-                Logger logger = Logger.getLogger("server.log");     // Associa o arquivo .log à variável logger
-
-                // Verificando se o tipo da mensagem é uma requisição
-                if (messageType == 1) {
-
-                    logger.info("Message Type: "    + messageType +
-                            " | Command ID: "       + commandId +
-                            " | Size of FileName: " + filenameSize +
-                            " | File Name: "        + filename);
-
-                    if (commandId == 1) {
-                        handleAddFile(this.output, filename, sizeOfContentFile, commandId, logger);
-
-                    } else if (commandId == 2) {
-                        // handleDelete(this.output, filename);
-
-                    } else if (commandId == 3) {
-                        // handleGetFilesList();
-
-                    } else if (commandId == 4) {
-                        // handleGetFile(this.output, filename);
-                    }
-                } // if message type
             } // while
+
         } catch (EOFException eofe) {
             System.out.println("EOF: " + eofe.getMessage());
         } catch (IOException ioe) {
@@ -98,12 +81,77 @@ public class ListenerThread extends Thread {
                 System.err.println("IOE: " + ioe);
             }
         }
-        System.out.println("Comunication client-server finished.");
+        logger.info("Client disconnected.\n");
     } // run
 
-    public void handleAddFile(DataOutputStream output, String filename, Integer sizeOfContentFile, byte commandId, Logger logger) throws IOException {
+    /**
+     * Recebe e processa os cabeçalhos das requisições dos clientes, chamando os métodos
+     * respectivos a cada comando e registrando o necessário no log no servidor.
+     * 
+     * @param request - Cabeçalho da requisição.
+     * @param output - Stream de saída (cliente).
+     * @param logger - Objeto para registro no arquivo de log.
+     * @throws IOException
+     */
+    private void processRequest(byte[] request, DataOutputStream output, Logger logger) throws IOException {
         
-        // System.out.println("Tamanho do arquivo: " + sizeOfContentFile); TODO: remover
+        // Obtendo os dados do cabeçalho da requisição
+        ByteBuffer header = ByteBuffer.wrap(request);       // Cria um ByteBuffer a partir do array de bytes recebido
+        header.order(ByteOrder.BIG_ENDIAN);                 // Define a ordem dos bytes (BIG_ENDIAN)
+
+        byte messageType = header.get();                    // Obtém o tipo da mensagem (1 byte)
+        byte commandId = header.get();                      // Obtém o código do comando (1 byte)
+        byte filenameSize = header.get();                   // Obtém o tamanho do nome do arquivo (1 byte)
+
+        byte[] filenameBytes = new byte[filenameSize];      // Cria um array de bytes para o nome do arquivo
+        header.get(filenameBytes);                          // Obtém o nome do arquivo em bytes (tamanho variável)
+        String filename = new String(filenameBytes);        // Converte o nome do arquivo para String
+        Integer sizeOfContentFile = header.getInt();        // Obtém o tamanho do conteúdo do arquivo
+    
+        // Verificando se o tipo da mensagem é uma requisição (0x01 == Request)
+        if (messageType == 1) {
+            logger.info("Message Type: "    + messageType +
+                    " | Command ID: "       + commandId +
+                    " | Size of FileName: " + filenameSize +
+                    " | File Name: "        + filename + "\n");
+    
+            switch (commandId) {
+                case 1:
+                    handleAddFile(output, filename, sizeOfContentFile, commandId, logger);
+                    break;
+                case 2:
+                    // handleDelete(output, filename);
+                    break;
+                case 3:
+                    // handleGetFilesList();
+                    break;
+                case 4:
+                    // handleGetFile(output, filename);
+                    break;
+                default:
+                    logger.warning("Unknown command ID: " + commandId + "\n");
+                    break;
+            }
+        } else {
+            logger.warning("Unknown message type: " + messageType + "\n");
+        }
+    } // processRequest
+    
+    /**
+     * Este método trata a requisição ADDFILE no lado do servidor.
+     * 
+     * O arquivo enviado pelo cliente é recebido e salvo no diretório 'Documents' no servidor.
+     * Em seguida, as devidas respostas são enviadas ao cliente, bem como registradas no log
+     * do servidor.
+     * 
+     * @param output - Objeto de escrita (client).
+     * @param filename - Nome do arquivo.
+     * @param sizeOfContentFile - Tamanho do conteúdo do arquivo.
+     * @param commandId - Identificador do comando (0x01 == ADDFILE).
+     * @param logger - Objeto de escrita (server.log).
+     * @throws IOException
+     */
+    public void handleAddFile(DataOutputStream output, String filename, Integer sizeOfContentFile, byte commandId, Logger logger) throws IOException {
 
         byte SUCCESS = (byte) 1;
         byte ERROR = (byte) 2;
@@ -115,10 +163,7 @@ public class ListenerThread extends Thread {
             // Realiza a leitura dos bytes do arquivo recebido
             for (int i = 0; i < sizeOfContentFile; i++) {
                 this.input.read(byteReaded);
-
-                byte b = byteReaded[0];
-                fileContentBytes[i] = b;
-                // fileContentBytes[i] = byteReaded[0]; // TODO: testar trocar (?)
+                fileContentBytes[i] = byteReaded[0];
             }
 
             String fileContentString = new String(fileContentBytes);
@@ -132,20 +177,17 @@ public class ListenerThread extends Thread {
                 buf.flush();
                 buf.close();
 
-                logger.info("File '" + filename + "'' was added successfully!\n");
-                logger.info("Sending response to client...");
-                commonResponse(this.output, SUCCESS, SUCCESS);
+                logger.fine("Status code 1 - File '" + filename + "' uploaded successfully!\n");
+                commonResponse(this.output, commandId, SUCCESS);
 
             } else {
                 
-                logger.info("Something went wrong when copying the file '" + filename + "'.");
-                logger.info("Sending response to client...");
+                logger.warning("Status code 2 - Something went wrong when copying the file '" + filename + "'.\n");
                 commonResponse(this.output, commandId, ERROR);
             }
 
         } else {
-            logger.info("The file '" + filename + "' has no content.");
-            logger.info("Sending response to client...");
+            logger.warning("Status code 2 - The file '" + filename + "' does not exist or has no content.\n");
             commonResponse(this.output, commandId, ERROR);
         }
     } // handleAddFile
@@ -155,7 +197,10 @@ public class ListenerThread extends Thread {
      * um cabeçalho específico, de acordo com o protocolo estabelecido. Isto é, será 
      * utilizado como resposta aos comandos ADDFILE e DELETE.
      * 
-     * TODO: add params
+     * @param output - Stream de saída.
+     * @param commandId - Identificador do comando.
+     * @param status - Status code (1 == SUCCESS || 2 == ERROR).
+     * @throws IOException
      */
     private void commonResponse(DataOutputStream output, byte commandId, byte status) throws IOException {
         ByteBuffer header = ByteBuffer.allocate(3); // Alocando 3 bytes para o cabeçalho

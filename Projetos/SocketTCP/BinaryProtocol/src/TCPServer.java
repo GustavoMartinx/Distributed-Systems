@@ -7,7 +7,6 @@
  * 
  * Data de criação: 07/04/2024
  * 
- * Datas de atualização: 
 **/
 
 import java.io.*;
@@ -20,26 +19,28 @@ public class TCPServer {
         public static void main(String args[]) {
     
             try {
-                int serverPort = 6666; // porta do servidor
+                int serverPort = 6666;
     
-                // criando um socket e mapeando a porta para aguardar conexão
+                // Criando um socket e mapeando a porta para aguardar conexão
                 ServerSocket listenSocket = new ServerSocket(serverPort);
     
-                // configurando o arquivo de log do servidor
-                FileHandler fileHandler = new FileHandler("server.log");  // cria um arquivo de log
-                Logger logger = Logger.getLogger("server.log");              // associa o arquivo de log ao objeto logger
+                // Configurando o arquivo de log do servidor
+                FileHandler fileHandler = new FileHandler("server.log");  // Cria um arquivo de log
+                Logger logger = Logger.getLogger("server.log");              // Associa o arquivo de log ao objeto logger
+                logger.setLevel(Level.FINE);                                      // Define a classe de mensagens que serão escritas no log
                 logger.addHandler(fileHandler);                                   
-                SimpleFormatter formatter = new SimpleFormatter();                // cria um formatador
-                fileHandler.setFormatter(formatter);                              // adiciona o formatador ao arquivo de log
+                SimpleFormatter formatter = new SimpleFormatter();                // Cria um formatador para o arquivo de log
+                fileHandler.setFormatter(formatter);                              // Adiciona o formatador ao arquivo de log
     
                 while (true) {
-                    // aguardando conexões
-                    System.out.println("Waiting connections...");
+                    // Aguardando conexões
+                    System.out.println("Waiting connections...\n");
                     
                     Socket clientSocket = listenSocket.accept();
-                    logger.info("Client conected!");
+                    logger.info("Client conected!\n");
+                    System.out.println("Client conected!\n");
                     
-                    // cria um thread para atender a conexao
+                    // Criando um thread para atender a conexão
                     ListenerThread listenerThread = new ListenerThread(clientSocket);
     
                     // inicializa a thread
