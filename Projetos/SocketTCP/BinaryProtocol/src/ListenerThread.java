@@ -64,7 +64,7 @@ public class ListenerThread extends Thread {
                 // Recebendo e processando a requisição
                 byte[] request = new byte[258];
                 this.input.read(request);
-                processRequest(request, this.output, logger);
+                processRequest(request, logger);
 
             } // while
 
@@ -89,11 +89,10 @@ public class ListenerThread extends Thread {
      * respectivos a cada comando e registrando o necessário no log no servidor.
      * 
      * @param request - Cabeçalho da requisição.
-     * @param output - Stream de saída (cliente).
      * @param logger - Objeto para registro no arquivo de log.
      * @throws IOException
      */
-    private void processRequest(byte[] request, DataOutputStream output, Logger logger) throws IOException {
+    private void processRequest(byte[] request, Logger logger) throws IOException {
         
         // Obtendo os dados do cabeçalho da requisição
         ByteBuffer header = ByteBuffer.wrap(request);       // Cria um ByteBuffer a partir do array de bytes recebido
@@ -117,16 +116,16 @@ public class ListenerThread extends Thread {
     
             switch (commandId) {
                 case 1:
-                    handleAddFile(output, filename, sizeOfContentFile, commandId, logger);
+                    handleAddFile(filename, sizeOfContentFile, commandId, logger);
                     break;
                 case 2:
-                    // handleDelete(output, filename);
+                    handleDeleteFile(filename, commandId, logger);
                     break;
                 case 3:
                     // handleGetFilesList();
                     break;
                 case 4:
-                    // handleGetFile(output, filename);
+                    // handleGetFile(filename);
                     break;
                 default:
                     logger.warning("Unknown command ID: " + commandId + "\n");
@@ -144,14 +143,13 @@ public class ListenerThread extends Thread {
      * Em seguida, as devidas respostas são enviadas ao cliente, bem como registradas no log
      * do servidor.
      * 
-     * @param output - Objeto de escrita (client).
      * @param filename - Nome do arquivo.
      * @param sizeOfContentFile - Tamanho do conteúdo do arquivo.
      * @param commandId - Identificador do comando (0x01 == ADDFILE).
      * @param logger - Objeto de escrita (server.log).
      * @throws IOException
      */
-    public void handleAddFile(DataOutputStream output, String filename, Integer sizeOfContentFile, byte commandId, Logger logger) throws IOException {
+    public void handleAddFile(String filename, Integer sizeOfContentFile, byte commandId, Logger logger) throws IOException {
 
         byte SUCCESS = (byte) 1;
         byte ERROR = (byte) 2;
@@ -178,37 +176,65 @@ public class ListenerThread extends Thread {
                 buf.close();
 
                 logger.fine("Status code 1 - File '" + filename + "' uploaded successfully!\n");
-                commonResponse(this.output, commandId, SUCCESS);
+                commonResponse(commandId, SUCCESS);
 
             } else {
                 
                 logger.warning("Status code 2 - Something went wrong when copying the file '" + filename + "'.\n");
-                commonResponse(this.output, commandId, ERROR);
+                commonResponse(commandId, ERROR);
             }
 
         } else {
+
             logger.warning("Status code 2 - The file '" + filename + "' does not exist or has no content.\n");
-            commonResponse(this.output, commandId, ERROR);
+            commonResponse(commandId, ERROR);
         }
     } // handleAddFile
+
+    /** 
+     * Este método trata a requisição DELETE no lado do servidor.
+     * 
+     * @param filename - Nome do arquivo a deletar.
+     * @param commandId - Identificador do comando (0x02 == DELETE).
+     * @param logger - Objeto de escrita (server.log).
+     * @throws IOException
+    */
+    public void handleDeleteFile(String filename, byte commandId, Logger logger) throws IOException {
+
+        byte SUCCESS = (byte) 1;
+        byte ERROR = (byte) 2;
+
+        File file = new File(this.serverPath + filename);
+
+        if (file.delete()) {
+
+            logger.fine("Status code 1 - File '" + filename + "' deleted successfully!\n");
+            commonResponse(commandId, SUCCESS);
+        
+        } else {
+
+            logger.warning("Status code 2 - Something went wrong when deleting the file '" + filename + "'.\n");
+            commonResponse(commandId, ERROR);
+        }
+    } // handleDeleteFile
+
 
     /**
      * Este método envia um cabeçalho de resposta comum para os comandos que não exigem
      * um cabeçalho específico, de acordo com o protocolo estabelecido. Isto é, será 
      * utilizado como resposta aos comandos ADDFILE e DELETE.
      * 
-     * @param output - Stream de saída.
      * @param commandId - Identificador do comando.
      * @param status - Status code (1 == SUCCESS || 2 == ERROR).
      * @throws IOException
      */
-    private void commonResponse(DataOutputStream output, byte commandId, byte status) throws IOException {
+    private void commonResponse(byte commandId, byte status) throws IOException {
         ByteBuffer header = ByteBuffer.allocate(3); // Alocando 3 bytes para o cabeçalho
         header.order(ByteOrder.BIG_ENDIAN);         // Definindo a ordem dos bytes como big endian
         header.put((byte) 2);                       // Tipo da mensagem (2 == Resposta)
         header.put(commandId);                      // Identificador do comando
         header.put(status);                         // Status (1 == SUCCESS || 2 == ERROR)
-        output.write(header.array());               // Convertendo o cabeçalho para um array de bytes
-        output.flush();
+        this.output.write(header.array());               // Convertendo o cabeçalho para um array de bytes
+        this.output.flush();
     }
 }

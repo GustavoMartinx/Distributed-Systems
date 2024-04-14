@@ -11,7 +11,7 @@
  * 
  * Data de criação: 07/04/2024
  * 
- * Datas de atualização: 11/04, 12/04
+ * Datas de atualização: 11/04, 12/04, 14/04
 **/
 
 import java.net.*;
@@ -102,17 +102,23 @@ public class TCPClient {
      */
     static boolean handleCommand(String command, DataOutputStream output) throws IOException {
         String[] splitedCommand = command.split(" ");
+        
+        String filename = "";
+        byte commandIdentifier;
+        
         boolean validCommand = true;
         boolean invalidCommand = false;
 
         if (splitedCommand[0].equals("ADDFILE") && splitedCommand.length == 2) {
-            String filename = splitedCommand[1];
-            byte commandIdentifier = (byte) 1;
+            filename = splitedCommand[1];
+            commandIdentifier = (byte) 1;
             executeAddFile(commandIdentifier, output, filename);
             return validCommand;
 
         } else if (splitedCommand[0].equals("DELETE") && splitedCommand.length == 2) {
-            // sendCommonRequests(output, (byte) 2, splitedCommand[1]);
+            filename = splitedCommand[1];
+            commandIdentifier = (byte) 2;
+            executeDeleteFile(commandIdentifier, output, filename);
             return validCommand;
 
         } else if (splitedCommand[0].equals("GETFILESLIST") && splitedCommand.length == 1) {
@@ -154,7 +160,7 @@ public class TCPClient {
         int fileSizeInt = (int) fileSize;
 
         // Criação do cabeçalho
-        ByteBuffer header = createHeader(commandIdentifier, sizeOfFilename, filenameBytes, fileSizeInt);
+        ByteBuffer header = createAddFileHeader(commandIdentifier, sizeOfFilename, filenameBytes, fileSizeInt);
         byte[] headerBytes = getHeaderBytes(header);
 
         // Envio do cabeçalho e, se o arquivo existir, envio do conteúdo do arquivo
@@ -172,6 +178,29 @@ public class TCPClient {
     } // executeAddFile
 
 
+    /**
+     * Método para executar o comando DELETE. O comando DELETE deletará um arquivo do servidor.
+     * 
+     * @param commandIdentifier - Identificador do comando DELETE (0x02).
+     * @param output - Objeto de escrita.
+     * @param filename - Nome do arquivo a ser deletado.
+     * @throws IOException
+     * 
+    **/
+    private static void executeDeleteFile(byte commandIdentifier, DataOutputStream output, String filename) throws IOException {
+
+        byte sizeOfFilename = (byte) filename.length();  // Tamanho do nome do arquivo em bytes
+        byte[] filenameBytes = filename.getBytes();      // Nome em si do arquivo convertido para bytes
+        
+        // Criação do cabeçalho
+        ByteBuffer header = createHeader(commandIdentifier, sizeOfFilename, filenameBytes);
+        byte[] headerBytes = getHeaderBytes(header);      // Converte o cabeçalho para bytes
+        
+        // Envio para o servidor do cabeçalho de requisição para deletar um arquivo
+        output.write(headerBytes);
+        output.flush();
+    }
+
     // métodos para execução dos outros comandos aqui
 
 
@@ -179,19 +208,34 @@ public class TCPClient {
 
 
 
+    /**
+     * Metodo para criar o cabeçalho de uma requisição comum.
+     * 
+     * @param commandIdentifier - Identificador do comando.
+     * @param sizeOfFilename - Tamanho do nome do arquivo.
+     * @param filenameBytes - Nome do arquivo em bytes.
+     * @return - Cabeçalho (ByteBuffer).
+    **/
+    private static ByteBuffer createHeader(byte commandIdentifier, byte sizeOfFilename, byte[] filenameBytes) {
+        ByteBuffer header = ByteBuffer.allocate(258);
+        header.order(ByteOrder.BIG_ENDIAN);
+        header.put((byte) 1);               // Message Type (1 == Request)
+        header.put(commandIdentifier);
+        header.put(sizeOfFilename);
+        header.put(filenameBytes);
+        return header;
+    }
 
     /**
-     * Método para criar o cabeçalho de uma requisição.
-     * 
-     * TODO: alterar este método para ser uma requisição comum (remover os campos da solicitação ADDFILE)
+     * Método para criar o cabeçalho de uma requisição ADDFILE.
      * 
      * @param commandIdentifier - Identificador do comando.
      * @param sizeOfFilename - Tamanho do nome do arquivo.
      * @param filenameBytes - Nome do arquivo em bytes.
      * @param fileSizeInt - Tamanho do arquivo em bytes.
-     * @return - Cabeçalho.
+     * @return - Cabeçalho (ByteBuffer).
      */
-    private static ByteBuffer createHeader(byte commandIdentifier, byte sizeOfFilename, byte[] filenameBytes, int fileSizeInt) {
+    private static ByteBuffer createAddFileHeader(byte commandIdentifier, byte sizeOfFilename, byte[] filenameBytes, int fileSizeInt) {
         ByteBuffer header = ByteBuffer.allocate(262);
         header.order(ByteOrder.BIG_ENDIAN);
         header.put((byte) 1);               // Message Type (1 == Request)
@@ -200,9 +244,8 @@ public class TCPClient {
         header.put(filenameBytes);
         header.putInt(fileSizeInt);
         return header;
-    } // createHeader
+    } // createAddFileHeader
     
-
     /**
      * Método para obter o array de bytes do cabeçalho. Note que o array de bytes retornado tem o tamanho
      * exato do cabeçalho. Portanto, não é necessário especificar um comprimento ao escrever o cabeçalho
@@ -215,7 +258,6 @@ public class TCPClient {
         int headerSize = header.position();
         return Arrays.copyOf(header.array(), headerSize);
     }
-
 
     /**
      * Método para enviar, byte a byte, o cabeçalho e o conteúdo de um arquivo ao servidor.
@@ -264,6 +306,7 @@ public class TCPClient {
         }
     } // handleDeleteFileResponse
 
+    
     // métodos para handle responses dos outros comandos aqui
 
 } // class
