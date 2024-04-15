@@ -75,6 +75,9 @@ public class TCPClient {
                         case 0x03:
                             handleGetFilesListResponse(headerBuffer, statusCode);
                             break;
+                        case 0x04:
+                            handleGetFileResponse(headerBuffer, statusCode);
+                            break;
                     }
                 }
             } // while
@@ -129,7 +132,9 @@ public class TCPClient {
             return validCommand;
 
         } else if (splitedCommand[0].equals("GETFILE") && splitedCommand.length == 2) {
-            // sendGetFileRequest(output, (byte) 4, splitedCommand[1]);
+            filename = splitedCommand[1];
+            commandIdentifier = (byte) 4;            
+            executeGetFile(commandIdentifier, output, filename);
             return validCommand;
 
         } else {
@@ -205,7 +210,7 @@ public class TCPClient {
     } // executeDeleteFile
 
     /**
-     * Metodo para executar o comando GETFILESLIST. O comando GETFILESLIST envia uma requisição para o servidor
+     * Método para executar o comando GETFILESLIST. O comando GETFILESLIST envia uma requisição para o servidor
      * para obter a lista de arquivos do diretório 'Documents'.
      * 
      * @param commandIdentifier - Identificador do comando GETFILESLIST (0x03).
@@ -223,15 +228,32 @@ public class TCPClient {
         output.flush();
     }
 
-    // métodos para execução dos outros comandos aqui
+    /**
+     * Método para executar o comando GETFILE. O comando GETFILE envia uma requisição para o servidor
+     * para fazer o download de um arquivo.
+     * 
+     * @param commandIdentifier - Identificador do comando GETFILE (0x04).
+     * @param output - Objeto de escrita.
+     * @param filename - Nome do arquivo a ser transmitido.
+     * @throws IOException
+    */
+    private static void executeGetFile(byte commandIdentifier, DataOutputStream output, String filename) throws IOException {
 
-
-
-
+        byte sizeOfFilename = (byte) filename.length();  // Tamanho do nome do arquivo em bytes
+        byte[] filenameBytes = filename.getBytes();      // Nome em si do arquivo convertido para bytes
+        
+        // Criação do cabeçalho
+        ByteBuffer header = createHeader(commandIdentifier, sizeOfFilename, filenameBytes);
+        byte[] headerBytes = getHeaderBytes(header);      // Converte o cabeçalho para bytes
+        
+        // Envio para o servidor do cabeçalho de requisição para fazer o download de um arquivo
+        output.write(headerBytes);
+        output.flush();
+    } // executeGetFile
 
 
     /**
-     * Metodo para criar o cabeçalho de uma requisição comum.
+     * Método para criar o cabeçalho de uma requisição comum.
      * 
      * @param commandIdentifier - Identificador do comando.
      * @param sizeOfFilename - Tamanho do nome do arquivo.
@@ -354,6 +376,48 @@ public class TCPClient {
         } else {
             System.out.println("Status: " + statusCode + " - There are no files in the 'Documents' directory.");
         }    
+    } // handleGetFilesListResponse
+
+    private static void handleGetFileResponse(ByteBuffer header, byte statusCode) throws IOException {
+
+        if (statusCode == 0x01) {
+
+            byte[] fileSizeBytes = new byte[4];
+            header.position(3); // Acessando a posição dos 4 bytes que representam o tamanho do arquivo no cabeçalho
+            header.get(fileSizeBytes); // Lê os 4 bytes do tamanho do arquivo
+            int fileSize = ByteBuffer.wrap(fileSizeBytes).getInt(); // Converte os 4 bytes para um inteiro
+            
+            // Cria o array de bytes para armazenar o conteúdo do arquivo
+            byte[] fileContent = new byte[fileSize];
+            
+            // Lê o conteúdo do arquivo do restante do cabeçalho
+            header.get(fileContent);
+            
+            // Cria o diretório "Downloads" se não existir
+            String downloadPath = System.getProperty("user.dir") + "/Downloads/";
+            File dir = new File(downloadPath);
+            if (!dir.exists()) {
+                dir.mkdir();
+            }
+
+            // Obtendo o nome do arquivo a ser baixado do cabeçalho
+            byte nameLength = header.get();
+            byte[] nameBytes = new byte[nameLength];
+
+            header.get(nameBytes);
+            String fileName = new String(nameBytes);
+            
+            // Cria o arquivo com o conteúdo lido na pasta "Downloads"
+            File file = new File(dir.getPath() + File.separator + fileName);
+            FileOutputStream fos = new FileOutputStream(file);
+            fos.write(fileContent);
+            fos.close();
+
+            System.out.println("Status code: " + statusCode + " - File " + fileName + " downloaded successfully!");
+            
+        } else {
+            System.out.println("Status code: " + statusCode + " - Something went wrong when getting the file.");
+        }
     }
 
 } // class

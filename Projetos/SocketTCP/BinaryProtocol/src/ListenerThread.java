@@ -14,6 +14,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.EOFException;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.net.Socket;
@@ -31,7 +32,6 @@ public class ListenerThread extends Thread {
 
     String localPath = System.getProperty("user.dir");
     String serverPath = System.getProperty("user.dir") + "/Documents/";
-    String downloadPath = System.getProperty("user.dir") + "/Downloads/";
 
     public ListenerThread(Socket clientSocket) {
         try {
@@ -127,7 +127,7 @@ public class ListenerThread extends Thread {
                     handleGetFilesList(logger);
                     break;
                 case 4:
-                    // handleGetFile(filename);
+                    handleGetFile(filename, logger, commandId);
                     break;
                 default:
                     logger.warning("Unknown command ID: " + commandId + "\n");
@@ -252,6 +252,34 @@ public class ListenerThread extends Thread {
         }
     } // handleGetFilesList
 
+    /**
+     * Este método trata a requisição GETFILE no lado do servidor.
+     * 
+     * @param filename - Nome do arquivo.
+     * @param logger - Objeto de escrita (server.log).
+     * @param commandId - Identificador do comando (0x04 == GETFILE).
+     * @throws IOException
+    **/
+    public void handleGetFile(String filename, Logger logger, byte commandId) throws IOException {
+
+        byte SUCCESS = (byte) 1;
+        byte ERROR = (byte) 2;
+
+        File file = new File(this.serverPath + filename);
+
+        if (file.exists()) {
+
+            try (FileInputStream fis = new FileInputStream(file)) {
+
+                getFileResponse(commandId, SUCCESS, file, fis);
+                logger.fine("Status code 1 - File '" + filename + "' downloaded successfully!\n");
+            }
+        } else {
+            commonResponse(commandId, ERROR);
+            logger.warning("Status code 2 - The file '" + filename + "' does not exist.\n");
+        }
+    } // handleGetFile
+
 
     /**
      * Este método envia um cabeçalho de resposta comum para os comandos que não exigem
@@ -259,15 +287,15 @@ public class ListenerThread extends Thread {
      * utilizado como resposta aos comandos ADDFILE e DELETE.
      * 
      * @param commandId - Identificador do comando.
-     * @param status - Status code (1 == SUCCESS || 2 == ERROR).
+     * @param statusCode - Status code (1 == SUCCESS || 2 == ERROR).
      * @throws IOException
      */
-    private void commonResponse(byte commandId, byte status) throws IOException {
+    private void commonResponse(byte commandId, byte statusCode) throws IOException {
         ByteBuffer header = ByteBuffer.allocate(3); // Alocando 3 bytes para o cabeçalho
         header.order(ByteOrder.BIG_ENDIAN);         // Definindo a ordem dos bytes como big endian
         header.put((byte) 2);                       // Tipo da mensagem (2 == Resposta)
         header.put(commandId);                      // Identificador do comando
-        header.put(status);                         // Status code (1 == SUCCESS || 2 == ERROR)
+        header.put(statusCode);                     // Status code (1 == SUCCESS || 2 == ERROR)
         this.output.write(header.array());          // Convertendo o cabeçalho para um array de bytes
         this.output.flush();
     } // commonResponse
@@ -311,4 +339,49 @@ public class ListenerThread extends Thread {
         this.output.flush();
     } // getFilesListResponse
 
+
+    /**
+     * Este método envia um cabeçalho de resposta para o comando GETFILE, incluindo
+     * o conteúdo do arquivo a ser enviado.
+     * 
+     * @param commandId - Identificador do comando.
+     * @param statusCode - Status code (1 == SUCCESS || 2 == ERROR).
+     * @param file - Arquivo a ser enviado.
+     * @param fis - Stream de entrada que fará a leitura do conteúdo do arquivo.
+     * @throws IOException
+     */
+    private void getFileResponse(byte commandId, byte statusCode, File file, FileInputStream fis) throws IOException {
+        
+        // Calculando o tamanho total do cabeçalho
+        // (4 bytes para o tamanho do arquivo + [variável] bytes para o conteúdo em si)
+        int fileSize = (int) file.length();     // Obtém o tamanho do arquivo
+        int contentSize = fileSize;             // Tamanho do conteúdo é igual ao tamanho do arquivo
+        byte sizeOfFilename = (byte) file.getName().length();
+      
+        int headerSize = contentSize + (sizeOfFilename * 2) + 4;  // 4 bytes para o campo "tamanho do arquivo"
+        
+        // Aloca o buffer com o tamanho total do cabeçalho e do conteúdo do arquivo
+        ByteBuffer header = ByteBuffer.allocate(3 + headerSize);
+        header.order(ByteOrder.BIG_ENDIAN);     // Definindo a ordem dos bytes como big endian
+        
+        header.put((byte) 2);                   // Tipo da mensagem (2 == Resposta)
+        header.put(commandId);                  // Identificador do comando
+        header.put(statusCode);                 // Status code (1 == SUCCESS || 2 == ERROR)
+        header.putInt(fileSize);                // Adiciona o tamanho do arquivo ao cabeçalho
+        
+        // Lê o conteúdo do arquivo e o adiciona ao cabeçalho
+        byte[] content = new byte[contentSize];
+        fis.read(content);
+        header.put(content);
+
+        // Adiciona o tamanho do nome do arquivo ao cabeçalho
+        header.put((byte) sizeOfFilename);
+        
+        // Adiciona o nome do arquivo ao cabeçalho
+        header.put(file.getName().getBytes());
+        
+        // Envia o cabeçalho como um array de bytes
+        this.output.write(header.array());
+        this.output.flush();
+    } // getFileResponse
 }
