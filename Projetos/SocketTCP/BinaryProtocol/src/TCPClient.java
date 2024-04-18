@@ -133,6 +133,7 @@ public class TCPClient {
 
         } else if (splitedCommand[0].equals("GETFILE") && splitedCommand.length == 2) {
             filename = splitedCommand[1];
+            // TODO: criar verificação de arquivo a ser baixado já existente ou não
             commandIdentifier = (byte) 4;            
             executeGetFile(commandIdentifier, output, filename);
             return validCommand;
@@ -382,15 +383,26 @@ public class TCPClient {
 
         if (statusCode == 0x01) {
 
+            // Obtendo do cabeçalho o tamanho do nome do arquivo
+            byte nameLength = 0;
+            header.get(nameLength);
+            
+            // Obtendo do cabeçalho o nome em si do arquivo
+            byte[] nameBytes = new byte[nameLength];
+            header.get(nameBytes);
+            String fileName = new String(nameBytes);
+            
+            // Obtendo do cabeçalho o tamanho do conteúdo do arquivo
             byte[] fileSizeBytes = new byte[4];
-            header.position(3); // Acessando a posição dos 4 bytes que representam o tamanho do arquivo no cabeçalho
-            header.get(fileSizeBytes); // Lê os 4 bytes do tamanho do arquivo
-            int fileSize = ByteBuffer.wrap(fileSizeBytes).getInt(); // Converte os 4 bytes para um inteiro
+            // header.position(3); // Acessando a posição dos 4 bytes que representam o tamanho do arquivo no cabeçalho
+            header.get(fileSizeBytes);
+            int fileSize = ByteBuffer.wrap(fileSizeBytes).getInt();
             
-            // Cria o array de bytes para armazenar o conteúdo do arquivo
+            System.out.println("fileSize:");
+            System.out.println(fileSize);
+
+            // Obtendo do cabeçalho o conteúdo do arquivo
             byte[] fileContent = new byte[fileSize];
-            
-            // Lê o conteúdo do arquivo do restante do cabeçalho
             header.get(fileContent);
             
             // Cria o diretório "Downloads" se não existir
@@ -398,22 +410,25 @@ public class TCPClient {
             File dir = new File(downloadPath);
             if (!dir.exists()) {
                 dir.mkdir();
-            }
-
-            // Obtendo o nome do arquivo a ser baixado do cabeçalho
-            byte nameLength = header.get();
-            byte[] nameBytes = new byte[nameLength];
-
-            header.get(nameBytes);
-            String fileName = new String(nameBytes);
+            }            
             
             // Cria o arquivo com o conteúdo lido na pasta "Downloads"
-            File file = new File(dir.getPath() + File.separator + fileName);
-            FileOutputStream fos = new FileOutputStream(file);
+            File downloadedFile = new File(dir.getPath() + fileName);
+            downloadedFile.createNewFile();
+
+            // Escrevendo o conteúdo do arquivo
+            FileOutputStream fos = new FileOutputStream(downloadedFile);
             fos.write(fileContent);
             fos.close();
 
-            System.out.println("Status code: " + statusCode + " - File " + fileName + " downloaded successfully!");
+            // FileWriter writer = new FileWriter(downloadedFile, true);
+            // BufferedWriter buf = new BufferedWriter(writer);
+            // buf.write(fileContent);
+            // buf.flush();
+            // buf.close();
+
+
+            System.out.println("Status code: " + statusCode + " - File '" + fileName + "' downloaded successfully!");
             
         } else {
             System.out.println("Status code: " + statusCode + " - Something went wrong when getting the file.");

@@ -21,6 +21,7 @@ import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.logging.*;
 
@@ -352,36 +353,49 @@ public class ListenerThread extends Thread {
      */
     private void getFileResponse(byte commandId, byte statusCode, File file, FileInputStream fis) throws IOException {
         
-        // Calculando o tamanho total do cabeçalho
-        // (4 bytes para o tamanho do arquivo + [variável] bytes para o conteúdo em si)
-        int fileSize = (int) file.length();     // Obtém o tamanho do arquivo
-        int contentSize = fileSize;             // Tamanho do conteúdo é igual ao tamanho do arquivo
-        byte sizeOfFilename = (byte) file.getName().length();
+        // Cabeçalho:
+        
+        // 1 byte - Message Type
+        // 1 byte - CommandID
+        // 1 byte - Status code
+        
+        // 1 byte - Tamanho do nome do arquivo
+        // [variável] bytes - Nome em si do arquivo
+        // 4 bytes - Tamanho do conteúdo do arquivo
+        // [variável] bytes - Conteúdo em si do arquivo
+        // --------------------------------------------        
+
+        // Calculando o tamanho total do cabeçalho:
+        int fileContentSize = (int) file.length();            // Obtém o tamanho do conteúdo do arquivo
+        byte sizeOfFilename = (byte) file.getName().length(); // Obtém o tamanho do nome do arquivo
       
-        int headerSize = contentSize + (sizeOfFilename * 2) + 4;  // 4 bytes para o campo "tamanho do arquivo"
+        // Tamanho total do Header:
+        int headerTotalSize = 3 + 1 + sizeOfFilename + 4 + fileContentSize; // (int) sizeOfFilename
         
         // Aloca o buffer com o tamanho total do cabeçalho e do conteúdo do arquivo
-        ByteBuffer header = ByteBuffer.allocate(3 + headerSize);
+        ByteBuffer header = ByteBuffer.allocate(headerTotalSize);
         header.order(ByteOrder.BIG_ENDIAN);     // Definindo a ordem dos bytes como big endian
         
         header.put((byte) 2);                   // Tipo da mensagem (2 == Resposta)
         header.put(commandId);                  // Identificador do comando
         header.put(statusCode);                 // Status code (1 == SUCCESS || 2 == ERROR)
-        header.putInt(fileSize);                // Adiciona o tamanho do arquivo ao cabeçalho
+        
+        header.put(sizeOfFilename);             // Adiciona o tamanho do nome do arquivo ao cabeçalho
+        header.put(file.getName().getBytes());  // Adiciona o nome em si do arquivo ao cabeçalho
+        
+        header.put((byte) fileContentSize);      // Adiciona o tamanho do arquivo ao cabeçalho
         
         // Lê o conteúdo do arquivo e o adiciona ao cabeçalho
-        byte[] content = new byte[contentSize];
+        byte[] content = new byte[fileContentSize];
         fis.read(content);
         header.put(content);
-
-        // Adiciona o tamanho do nome do arquivo ao cabeçalho
-        header.put((byte) sizeOfFilename);
         
-        // Adiciona o nome do arquivo ao cabeçalho
-        header.put(file.getName().getBytes());
+        // Convertendo o cabeçalho para um array de bytes
+        int headerSize = header.position();
+        byte[] headerBytes = Arrays.copyOf(header.array(), headerSize);
         
-        // Envia o cabeçalho como um array de bytes
-        this.output.write(header.array());
+        // Envia o cabeçalho
+        this.output.write(headerBytes);
         this.output.flush();
     } // getFileResponse
 }
