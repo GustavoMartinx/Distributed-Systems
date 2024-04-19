@@ -383,27 +383,54 @@ public class TCPClient {
 
         if (statusCode == 0x01) {
 
+            // header.position() é 3, pois os 3 primeiros bytes são lidos antes da chamada deste método
+
+            // Para acessar posições específicas do ByteBuffer header
+            int index = 0;
+            int offset = 0;
+            int length = 0;
+
             // Obtendo do cabeçalho o tamanho do nome do arquivo
             byte nameLength = 0;
-            header.get(nameLength);
+            index = 3;
+            nameLength = header.get(index);
+
+            System.out.println("filenameLength in Bytes:");
+            System.out.println(nameLength);
+
+            System.out.println("Position do buffer apos get filenameLength:");
+            System.out.println(header.position());
+            
             
             // Obtendo do cabeçalho o nome em si do arquivo
             byte[] nameBytes = new byte[nameLength];
-            header.get(nameBytes);
+            offset = 4;
+            length = (int) nameLength;
+
+            header.get(nameBytes, offset, (length - offset));
             String fileName = new String(nameBytes);
-            
+            System.out.println("File name:");
+            System.out.println(fileName);
+
             // Obtendo do cabeçalho o tamanho do conteúdo do arquivo
-            byte[] fileSizeBytes = new byte[4];
+            // byte[] fileSizeBytes = new byte[4];
             // header.position(3); // Acessando a posição dos 4 bytes que representam o tamanho do arquivo no cabeçalho
-            header.get(fileSizeBytes);
-            int fileSize = ByteBuffer.wrap(fileSizeBytes).getInt();
-            
-            System.out.println("fileSize:");
-            System.out.println(fileSize);
+            // header.get(fileSizeBytes);
+            System.out.println("Position do buffer antes getInt file content size:");
+            System.out.println(header.position());
+            header.position(offset + nameLength);
+            System.out.println("Position changed to:");
+            System.out.println(header.position());
+
+            int fileSize = header.getInt();
+            System.out.println("Position do buffer depois getInt file content size:");
+            System.out.println(header.position());
 
             // Obtendo do cabeçalho o conteúdo do arquivo
             byte[] fileContent = new byte[fileSize];
-            header.get(fileContent);
+            offset = header.position();
+            length = fileSize;
+            header.get(fileContent, offset, (length - offset)); // aqui
             
             // Cria o diretório "Downloads" se não existir
             String downloadPath = System.getProperty("user.dir") + "/Downloads/";

@@ -375,7 +375,7 @@ public class ListenerThread extends Thread {
         // Aloca o buffer com o tamanho total do cabeçalho e do conteúdo do arquivo
         ByteBuffer header = ByteBuffer.allocate(headerTotalSize);
         header.order(ByteOrder.BIG_ENDIAN);     // Definindo a ordem dos bytes como big endian
-        
+        header.clear();
         header.put((byte) 2);                   // Tipo da mensagem (2 == Resposta)
         header.put(commandId);                  // Identificador do comando
         header.put(statusCode);                 // Status code (1 == SUCCESS || 2 == ERROR)
