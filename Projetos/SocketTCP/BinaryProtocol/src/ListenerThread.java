@@ -6,7 +6,7 @@
  * 
  * Data de criação: 07/04/2024
  * 
- * Datas de atualização: 11/04, 13/04, 14/04
+ * Datas de atualização: 11/04, 13/04, 14/04, 18/04
 **/
 
 import java.io.BufferedWriter;
@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -272,7 +273,7 @@ public class ListenerThread extends Thread {
 
             try (FileInputStream fis = new FileInputStream(file)) {
 
-                getFileResponse(commandId, SUCCESS, file, fis);
+                getFileResponse(commandId, SUCCESS, file, fis, logger);
                 logger.fine("Status code 1 - File '" + filename + "' downloaded successfully!\n");
             }
         } else {
@@ -351,7 +352,7 @@ public class ListenerThread extends Thread {
      * @param fis - Stream de entrada que fará a leitura do conteúdo do arquivo.
      * @throws IOException
      */
-    private void getFileResponse(byte commandId, byte statusCode, File file, FileInputStream fis) throws IOException {
+    private void getFileResponse(byte commandId, byte statusCode, File file, FileInputStream fis, Logger logger) throws IOException {
         
         // Cabeçalho:
         
@@ -368,7 +369,7 @@ public class ListenerThread extends Thread {
         // Calculando o tamanho total do cabeçalho:
         int fileContentSize = (int) file.length();            // Obtém o tamanho do conteúdo do arquivo
         byte sizeOfFilename = (byte) file.getName().length(); // Obtém o tamanho do nome do arquivo
-      
+
         // Tamanho total do Header:
         int headerTotalSize = 3 + 1 + sizeOfFilename + 4 + fileContentSize; // (int) sizeOfFilename
         
@@ -383,17 +384,29 @@ public class ListenerThread extends Thread {
         header.put(sizeOfFilename);             // Adiciona o tamanho do nome do arquivo ao cabeçalho
         header.put(file.getName().getBytes());  // Adiciona o nome em si do arquivo ao cabeçalho
         
-        header.put((byte) fileContentSize);      // Adiciona o tamanho do arquivo ao cabeçalho
+        header.putInt(fileContentSize);      // Adiciona o tamanho do arquivo ao cabeçalho
         
         // Lê o conteúdo do arquivo e o adiciona ao cabeçalho
         byte[] content = new byte[fileContentSize];
         fis.read(content);
-        header.put(content);
-        
+
+        int offset = 0;
+        int length = fileContentSize;
+
+        header.put(content, offset, length);
+
         // Convertendo o cabeçalho para um array de bytes
-        int headerSize = header.position();
-        byte[] headerBytes = Arrays.copyOf(header.array(), headerSize);
+        header.flip();
+        byte[] headerBytes = Arrays.copyOf(header.array(), header.array().length);
         
+
+
+        // Convertendo ByteBuffer para String para debug
+        // String headerString = new String(headerBytes, StandardCharsets.UTF_8);
+        // logger.fine(headerString + "\n");
+        
+
+
         // Envia o cabeçalho
         this.output.write(headerBytes);
         this.output.flush();

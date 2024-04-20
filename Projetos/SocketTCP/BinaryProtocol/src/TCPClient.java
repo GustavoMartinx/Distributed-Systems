@@ -11,7 +11,7 @@
  * 
  * Data de criação: 07/04/2024
  * 
- * Datas de atualização: 11/04, 12/04, 14/04
+ * Datas de atualização: 11/04, 12/04, 14/04, 18/04
 **/
 
 import java.net.*;
@@ -19,6 +19,7 @@ import java.io.*;
 import java.util.Scanner;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -383,77 +384,78 @@ public class TCPClient {
 
         if (statusCode == 0x01) {
 
+            // BUG: verificar por que o cabeçalho não chega aqui com o conteúdo completo
+            
+            // String headerString = new String(header.array(), StandardCharsets.UTF_8);
+            // System.out.println("Conteúdo do header: " + headerString);
+
             // header.position() é 3, pois os 3 primeiros bytes são lidos antes da chamada deste método
+            System.out.println("\nInicio\nheader.position()");
+            System.out.println(header.position() + "\n");
 
             // Para acessar posições específicas do ByteBuffer header
-            int index = 0;
             int offset = 0;
             int length = 0;
 
             // Obtendo do cabeçalho o tamanho do nome do arquivo
             byte nameLength = 0;
-            index = 3;
-            nameLength = header.get(index);
+            nameLength = header.get();
 
-            System.out.println("filenameLength in Bytes:");
-            System.out.println(nameLength);
+            System.out.println("Tamanho do File Name (bytes):");
+            System.out.println(nameLength + "\n"); // 14 é o certo
 
-            System.out.println("Position do buffer apos get filenameLength:");
-            System.out.println(header.position());
+            System.out.println("header.position()");
+            System.out.println(header.position() + "\n"); // 4 é o certo
             
             
             // Obtendo do cabeçalho o nome em si do arquivo
             byte[] nameBytes = new byte[nameLength];
-            offset = 4;
+            // offset = 0;
             length = (int) nameLength;
 
-            header.get(nameBytes, offset, (length - offset));
+            header.get(nameBytes, offset, length);
             String fileName = new String(nameBytes);
             System.out.println("File name:");
-            System.out.println(fileName);
+            System.out.println(fileName + "\n");
 
             // Obtendo do cabeçalho o tamanho do conteúdo do arquivo
             // byte[] fileSizeBytes = new byte[4];
             // header.position(3); // Acessando a posição dos 4 bytes que representam o tamanho do arquivo no cabeçalho
             // header.get(fileSizeBytes);
-            System.out.println("Position do buffer antes getInt file content size:");
-            System.out.println(header.position());
-            header.position(offset + nameLength);
-            System.out.println("Position changed to:");
-            System.out.println(header.position());
+            System.out.println("header.position()");
+            System.out.println(header.position() + "\n"); // 18
 
             int fileSize = header.getInt();
-            System.out.println("Position do buffer depois getInt file content size:");
-            System.out.println(header.position());
+
+            System.out.println("-> File Size:");
+            System.out.println(fileSize + "\n");
+
+            System.out.println("header.position() depois getInt file content size:");
+            System.out.println(header.position() + "\n"); // tem q ser 22
 
             // Obtendo do cabeçalho o conteúdo do arquivo
-            byte[] fileContent = new byte[fileSize];
-            offset = header.position();
+            byte[] fileContentBytes = new byte[fileSize];
             length = fileSize;
-            header.get(fileContent, offset, (length - offset)); // aqui
+            header.get(fileContentBytes, offset, length);
+            String fileContentString = new String(fileContentBytes);
             
             // Cria o diretório "Downloads" se não existir
             String downloadPath = System.getProperty("user.dir") + "/Downloads/";
             File dir = new File(downloadPath);
             if (!dir.exists()) {
                 dir.mkdir();
-            }            
+            }
             
             // Cria o arquivo com o conteúdo lido na pasta "Downloads"
-            File downloadedFile = new File(dir.getPath() + fileName);
+            File downloadedFile = new File(downloadPath + fileName);
             downloadedFile.createNewFile();
 
             // Escrevendo o conteúdo do arquivo
-            FileOutputStream fos = new FileOutputStream(downloadedFile);
-            fos.write(fileContent);
-            fos.close();
-
-            // FileWriter writer = new FileWriter(downloadedFile, true);
-            // BufferedWriter buf = new BufferedWriter(writer);
-            // buf.write(fileContent);
-            // buf.flush();
-            // buf.close();
-
+            FileWriter writer = new FileWriter(downloadedFile, true);
+            BufferedWriter buf = new BufferedWriter(writer);
+            buf.write(fileContentString);
+            buf.flush();
+            buf.close();
 
             System.out.println("Status code: " + statusCode + " - File '" + fileName + "' downloaded successfully!");
             
