@@ -2,9 +2,9 @@ package BackupSystem;
 
 /**
  * UDPServer: Servidor UDP
- * Descricao: Recebe um datagrama de um cliente, imprime o conteudo e retorna o mesmo
+ * Descricao: Recebe um datagrama de um cliente, imprime o conteúdo e retorna o mesmo
  * datagrama ao cliente
- */
+**/
 
 import java.net.*;
 import java.io.*;
@@ -16,6 +16,7 @@ public class UDPServer{
             dgramSocket = new DatagramSocket(6666); // cria um socket datagrama em uma porta especifica
             
             while(true){
+                System.out.println("Server online!");
                 byte[] buffer = new byte[1000]; // cria um buffer para receber requisições
 
                 /* cria um pacote vazio */
