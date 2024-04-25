@@ -21,11 +21,13 @@ public class UDPClient {
             dgramSocket = new DatagramSocket(); //cria um socket datagrama
             
             System.out.println("IP Destination:");
-            inputBuffer = reader.nextLine();
+            // inputBuffer = reader.nextLine();
+            inputBuffer = "127.0.0.1";
             String dstIP = inputBuffer;
             
             System.out.println("Port Destination:");
-            inputBuffer = reader.nextLine();
+            // inputBuffer = reader.nextLine();
+            inputBuffer = "6666";
             int dstPort = Integer.parseInt(inputBuffer);
             
             /* armazena o IP do destino */
@@ -101,7 +103,7 @@ public class UDPClient {
         // Inserindo esses dados no buffer
         int sizeOfFileName = fileName.length();
 
-        ByteBuffer buffer = ByteBuffer.allocate(sizeOfFileName + 8); // tamanho do filename + 4 bytes
+        ByteBuffer buffer = ByteBuffer.allocate(sizeOfFileName + 4); // tamanho do filename + 4 bytes
         buffer.order(ByteOrder.BIG_ENDIAN);
 
         byte[] fileNameBytes = fileName.getBytes();     // Transforma o nome do aquivo em bytes
