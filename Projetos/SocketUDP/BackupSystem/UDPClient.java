@@ -5,10 +5,12 @@ package BackupSystem;
  * Descrição: Envia uma mensagem em um datagrama e recebe a mesma mensagem do servidor
 **/
 import java.net.*;
+import java.io.*;
+import java.security.*;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.util.Arrays;
 import java.util.Scanner;
-import java.io.*;
 
 public class UDPClient {
 
@@ -18,7 +20,7 @@ public class UDPClient {
         
         try {
             String inputBuffer = "";
-            dgramSocket = new DatagramSocket(); //cria um socket datagrama
+            dgramSocket = new DatagramSocket(); // cria um socket datagrama
             
             System.out.println("IP Destination:");
             // inputBuffer = reader.nextLine();
@@ -39,18 +41,21 @@ public class UDPClient {
                 System.out.print("$ ");
                 String command = reader.nextLine();
                 
+                // Trata a entrada do usuário
                 int validCommand = handleCommand(command);
                 
+                // Verificando se o arquivo existe ou se digitou "EXIT"
                 if(validCommand == 0) {
                     break;
                 } else if (validCommand == 1) {
                     continue;
                 }
 
+                // Envia o arquivo para o servidor
                 uploadFile(command, serverAddr, serverPort, dgramSocket);
 
                 /* cria um buffer vazio para receber datagramas */
-                byte[] buffer = new byte[1000];
+                byte[] buffer = new byte[1024];
                 DatagramPacket reply = new DatagramPacket(buffer, buffer.length);
 
                 /* aguarda datagramas */
@@ -90,9 +95,12 @@ public class UDPClient {
 
     static void uploadFile(String command, InetAddress serverAddr, int serverPort, DatagramSocket dgramSocket) throws Exception {
         
+        // Inicializa o MessageDigest com o algoritmo SHA-1
+        MessageDigest md = MessageDigest.getInstance("SHA-1");
+
         // Criando o primeiro pacote a ser enviado (FileName e FileSize):
         
-        // File name: String (variável)
+        // File name: String (tamanho variável)
         String fileName = command;
         File file = new File(System.getProperty("user.dir") + "/" + fileName);
         
@@ -100,27 +108,91 @@ public class UDPClient {
         long fileSize = file.length();
         int fileSizeInt = (int) fileSize;
         
-        // Inserindo esses dados no buffer
-        int sizeOfFileName = fileName.length();
-
-        ByteBuffer buffer = ByteBuffer.allocate(sizeOfFileName + 4); // tamanho do filename + 4 bytes
+        // Inserindo tais dados no buffer
+        int sizeOfFileName = fileName.length();                     // Obtendo o tamanho do fileName
+        ByteBuffer buffer = ByteBuffer.allocate(sizeOfFileName + 4);// tamanho do fileName + 4 bytes
         buffer.order(ByteOrder.BIG_ENDIAN);
 
         byte[] fileNameBytes = fileName.getBytes();     // Transforma o nome do aquivo em bytes
         buffer.put(fileNameBytes);                      // Insere o nome do aquivo no buffer
-        buffer.putInt(fileSizeInt);                        // Insere o tamanho do aquivo no buffer
+        buffer.putInt(fileSizeInt);                     // Insere o tamanho do aquivo no buffer
         byte[] payload = buffer.array();                // Converte o buffer em um array de bytes
 
+        // Atualiza o MessageDigest com os bytes lidos até o momento
+        md.update(payload, 0, payload.length);
+
         // Cria um pacote datagrama com o buffer como payload
-        DatagramPacket request = new DatagramPacket(
+        DatagramPacket dgramPacket_NameAndSize = new DatagramPacket(
             payload,
             payload.length,
             serverAddr,
             serverPort
         );
 
-        // Envia o pacote
-        dgramSocket.send(request);
+        // Envia o pacote com FileName e FileSize
+        dgramSocket.send(dgramPacket_NameAndSize);
+
+
+        // Obtendo e enviando o conteúdo do arquivo
+        try (FileInputStream fis = new FileInputStream(file)) {
+
+            int byteReaded;                         // Byte lido do arquivo
+            int pktSize = 0;                        // Contador do tamanho do pacote
+            byte[] fileContent = new byte[1024];    // Array para armazenar o conteúdo do arquivo
+
+            do {
+                // Lendo bytes do arquivo e inserindo em fileContent
+                while ((byteReaded = fis.read()) != -1 && pktSize < 1024) {
+                    fileContent[pktSize] = (byte) byteReaded;
+                    
+                    // System.out.println("\n" + pktSize);
+
+                    // System.out.println("fileContent: ");
+                    // System.out.println(fileContent);
+                    // System.out.println("byteReaded: ");
+                    // System.out.println(byteReaded);
+
+                    pktSize++;
+                }
+
+                // Atualiza o MessageDigest com os bytes lidos até o momento
+                md.update(fileContent, 0, pktSize);
+              
+                // Enviar datagrama cujo payload é fileContent
+                DatagramPacket dgramPacket_FileContent = new DatagramPacket(
+                    fileContent,
+                    pktSize,
+                    serverAddr,
+                    serverPort
+                );
+                dgramSocket.send(dgramPacket_FileContent);
+
+                Arrays.fill(fileContent, (byte)0);  // Limpar fileContent
+                pktSize = 0;                        // Reinicia o contador do tamanho do pacote
+            
+            } while(byteReaded != -1);
+            
+            // Calcula o checksum SHA-1 final
+            byte[] checksumBytes = md.digest();
+
+            // Converte o checksum para uma representação em hexadecimal # isso n ta meio torto?
+            // StringBuilder checksumHex = new StringBuilder();
+            // for (byte b : checksumBytes) {
+            //     checksumHex.append(String.format("%02x", b));
+            // }
+
+            // Envia o checksum final como uma string hexadecimal
+            // byte[] checksumPayload = checksumHex.toString().getBytes();
+            DatagramPacket dgramPacket_Checksum = new DatagramPacket(
+                checksumBytes,
+                checksumBytes.length,
+                serverAddr,
+                serverPort
+            );
+            dgramSocket.send(dgramPacket_Checksum);
+
+            fis.close();
+        }
     }
 
 } // class
