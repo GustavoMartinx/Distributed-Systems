@@ -1,8 +1,9 @@
-package BackupSystem;
+package src;
 
 /**
  * UDPClient: Cliente UDP
- * Descrição: Envia uma mensagem em um datagrama e recebe a mesma mensagem do servidor
+ * Descrição: Envia um arquivo para um servidor através de um socket datagrama.
+ * 
 **/
 import java.net.*;
 import java.io.*;
@@ -19,25 +20,26 @@ public class UDPClient {
         Scanner reader =  new Scanner(System.in);
         
         try {
-            String inputBuffer = "";
-            dgramSocket = new DatagramSocket(); // cria um socket datagrama
+            // Criando um socket datagrama
+            dgramSocket = new DatagramSocket();
             
+            String inputBuffer = "";
             System.out.println("IP Destination:");
-            // inputBuffer = reader.nextLine();
-            inputBuffer = "127.0.0.1";
+            inputBuffer = reader.nextLine();
+            // inputBuffer = "127.0.0.1";
             String dstIP = inputBuffer;
             
             System.out.println("Port Destination:");
-            // inputBuffer = reader.nextLine();
-            inputBuffer = "6666";
+            inputBuffer = reader.nextLine();
+            // inputBuffer = "6666";
             int dstPort = Integer.parseInt(inputBuffer);
             
-            /* armazena o IP do destino */
+            // Armazenando o IP do destino
             InetAddress serverAddr = InetAddress.getByName(dstIP);
-            int serverPort = dstPort; // porta do servidor
+            int serverPort = dstPort;
             
             while(true) {
-                System.out.println("Type a message:");
+                System.out.println("Type a file to upload:");
                 System.out.print("$ ");
                 String command = reader.nextLine();
                 
@@ -54,18 +56,18 @@ public class UDPClient {
                 // Envia o arquivo para o servidor
                 uploadFile(command, serverAddr, serverPort, dgramSocket);
 
-                /* cria um buffer vazio para receber datagramas */
+                // Criando um buffer vazio para receber a resposta
                 byte[] buffer = new byte[1024];
                 DatagramPacket reply = new DatagramPacket(buffer, buffer.length);
 
-                /* aguarda datagramas */
+                // Aguarda o datagrama de resposta
                 dgramSocket.receive(reply);
-                System.out.println("Response: " + new String(reply.getData(),0,reply.getLength()));
-            } //while
+                System.out.println("Response: " + new String(reply.getData(), 0, reply.getLength()));
+            } // while
 
             System.out.println("Client closed.");
 
-            /* libera o socket */
+            // Liberando o socket
             dgramSocket.close();
 
         } catch (SocketException e) {

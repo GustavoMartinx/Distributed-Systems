@@ -1,9 +1,10 @@
-package BackupSystem;
+package src;
 
 /**
  * UDPServer: Servidor UDP
- * Descricao: Recebe um datagrama de um cliente, imprime o conteúdo e retorna o mesmo
- * datagrama ao cliente
+ * Descrição: Recebe um arquivo através de um socket datagrama
+ * e salva-o no diretório "Documents".
+ * 
 **/
 
 import java.net.*;
@@ -118,23 +119,25 @@ public class UDPServer {
                     bos.close();
                     File newFile = new File(serverPath + filename);
                     newFile.delete();
-                    System.out.println("Something went wrong when uploading the file '" + filename + "'.");
-                    // TODO: enviar resposta pro client que deu ruim
+
+                    // Enviar resposta para o cliente que ocorreu um erro
+                    String response = "Something went wrong when uploading the file '" + filename + "'.";
+                    System.out.println(response);
+
+                    // Enviando resposta para o cliente
+                    DatagramPacket reply = new DatagramPacket(response.getBytes(), response.length(), dgramPacket_NameAndSize.getSocketAddress());
+                    dgramSocket.send(reply);
                 } else {
                     bos.close();
-                    System.out.println("File '" + filename + "' uploaded successfully!");
+                    String response = "File '" + filename + "' uploaded successfully!";
+                    System.out.println(response);
+
+                    // Enviando resposta para o cliente
+                    DatagramPacket reply = new DatagramPacket(response.getBytes(), response.length(), dgramPacket_NameAndSize.getSocketAddress());
+                    dgramSocket.send(reply);
                 }
-                
-
-
-                /* imprime e envia o datagrama de volta ao cliente */ 
-                // System.out.println("Cliente: " + datagramReceived);
-                // System.out.println("Cliente: " + new String(dgramPacket.getData(), 0, dgramPacket.getLength()));
-                // DatagramPacket reply = new DatagramPacket(dgramPacket.getData(),
-                //         dgramPacket.getLength(), dgramPacket.getAddress(), dgramPacket.getPort()); // cria um pacote com os dados
-
-                // dgramSocket.send(reply); // envia o pacote
             } // while
+
         } catch (SocketException e){
             System.out.println("Socket: " + e.getMessage());
         } catch (IOException e) {
