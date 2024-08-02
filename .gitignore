@@ -5,3 +5,8 @@ Slides aulas/
 Livros/
 
 **/*.class
+**/*.jar
+**/protoc/
+**/__pycache__/
+**/venv/
+**/.vscode/
