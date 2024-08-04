@@ -3,7 +3,7 @@
 [descrição do projeto]
 
 **Autores:**
-- [Christofer Daniel dos Santos](https://github.com/christoferlv)
+- [Christofer Daniel Rodrigues Santos](https://github.com/christoferlv)
 - [Diogo Rodrigues dos Santos](https://github.com/DiogoRodriguees)
 - [Gustavo Zanzin Guerreiro Martins](https://github.com/GustavoMartinx)
 
