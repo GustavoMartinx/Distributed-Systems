@@ -2,7 +2,7 @@
  * ServerTcpMovies: [TODO: fornecer descrição do arquivo, conforme descrito em
  * https://moodle.utfpr.edu.br/mod/page/view.php?id=1594607].
  * 
- * Autores: Christofer dos Santos, Diogo dos Santos e Gustavo Martins
+ * Autores: Christofer D. Rodrigues Santos, Diogo dos Santos e Gustavo Martins
  * 
  * Data de criação: 01/08/2024
  * 
