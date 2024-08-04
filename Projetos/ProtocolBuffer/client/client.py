@@ -11,7 +11,7 @@
 """
 
 import socket
-import Movies_pb2
+import server.Movies_pb2 as Movies_pb2
 
 def main():
     # Conecta-se ao servidor
