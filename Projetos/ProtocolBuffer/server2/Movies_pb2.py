@@ -13,7 +13,7 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x0cMovies.proto\"M\n\x05Movie\x12\x0f\n\x02id\x18\x01 \x01(\tH\x00\x88\x01\x01\x12\x12\n\x05title\x18\x02 \x01(\tH\x01\x88\x01\x01\x12\x0e\n\x06genres\x18\x03 \x03(\tB\x05\n\x03_idB\x08\n\x06_title\"Q\n\x08Response\x12\x0e\n\x06status\x18\x01 \x01(\x05\x12\x0f\n\x07message\x18\x02 \x01(\t\x12\x1a\n\x05movie\x18\x03 \x01(\x0b\x32\x06.MovieH\x00\x88\x01\x01\x42\x08\n\x06_movie\"?\n\x07Request\x12\x0e\n\x06method\x18\x01 \x01(\t\x12\x1a\n\x05movie\x18\x02 \x01(\x0b\x32\x06.MovieH\x00\x88\x01\x01\x42\x08\n\x06_movieb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x0cMovies.proto\"M\n\x05Movie\x12\x0f\n\x02id\x18\x01 \x01(\tH\x00\x88\x01\x01\x12\x12\n\x05title\x18\x02 \x01(\tH\x01\x88\x01\x01\x12\x0e\n\x06genres\x18\x03 \x03(\tB\x05\n\x03_idB\x08\n\x06_title\".\n\x0cMovieFilters\x12\x0e\n\x06\x63olumn\x18\x01 \x01(\t\x12\x0e\n\x06values\x18\x02 \x03(\t\"Q\n\x08Response\x12\x0e\n\x06status\x18\x01 \x01(\x05\x12\x0f\n\x07message\x18\x02 \x01(\t\x12\x1a\n\x05movie\x18\x03 \x01(\x0b\x32\x06.MovieH\x00\x88\x01\x01\x42\x08\n\x06_movie\"p\n\x07Request\x12\x0e\n\x06method\x18\x01 \x01(\t\x12\x1a\n\x05movie\x18\x02 \x01(\x0b\x32\x06.MovieH\x00\x88\x01\x01\x12#\n\x07\x66ilters\x18\x03 \x01(\x0b\x32\r.MovieFiltersH\x01\x88\x01\x01\x42\x08\n\x06_movieB\n\n\x08_filtersb\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -22,8 +22,10 @@ if _descriptor._USE_C_DESCRIPTORS == False:
   DESCRIPTOR._options = None
   _globals['_MOVIE']._serialized_start=16
   _globals['_MOVIE']._serialized_end=93
-  _globals['_RESPONSE']._serialized_start=95
-  _globals['_RESPONSE']._serialized_end=176
-  _globals['_REQUEST']._serialized_start=178
-  _globals['_REQUEST']._serialized_end=241
+  _globals['_MOVIEFILTERS']._serialized_start=95
+  _globals['_MOVIEFILTERS']._serialized_end=141
+  _globals['_RESPONSE']._serialized_start=143
+  _globals['_RESPONSE']._serialized_end=224
+  _globals['_REQUEST']._serialized_start=226
+  _globals['_REQUEST']._serialized_end=338
 # @@protoc_insertion_point(module_scope)

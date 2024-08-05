@@ -3,21 +3,21 @@ class MovieController:
         self.movieService = movieService
 
     def create(self, request):
-        movie = request.movie
-        print("This is a create movie controller")
+        print("[Movie Controller] Executing method create()")
+        self.movieService.create(request.movie)
 
     def update(self, request):
+        print("[Movie Controller] Executing method update()")
         movie = request.movie
-        print("This is a update movie controller")
         
     def findByCategories(self, request):
-        movie = request.movie
-        print("This is a find by actor movie controller")
+        print("[Movie Controller] Executing method findByCategories()")
+        self.movieService.findByCategories(request.filters.values)
         
     def findByAtor(self, request):
-        movie = request.movie
-        print("This is a movie find by ator controller")
+        print("[Movie Controller] Executing method findByAtor()")
+        self.movieService.findByAtor(request.filters.values)
 
     def delete(self, request):
-        movie = request.movie
-        print("THis is a movie delete controller")
+        print("[Movie Controller] Executing method delete()")
+        self.movieService.delete(request.movie.id)

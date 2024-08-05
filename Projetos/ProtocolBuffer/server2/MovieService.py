@@ -2,17 +2,22 @@ class MovieService:
     def __init__(self, database):
         self.database = database
     
-    def create(self):
-        print("This is a create movie service")
+    def create(self, movie):
+        print("[Movie Service] Executing method create()")
+        data = {"title": movie.title}
+        self.database.crete(data)
 
     def update(self):
-        print("This is a update movie service")
+        print("[Movie Service] Executing method update()")
         
-    def findByCategories(self):
-        print("This is a find by actor movie service")
+    def findByCategories(self, values):
+        print("[Movie Service] Executing method findByCategories()")
+        self.database.findByGenres(values)
         
-    def findByAtor(self):
-        print("This is a movie find by ator service")
+    def findByAtor(self, values):
+        print("[Movie Service] Executing method findByAtor()")
+        self.database.findByCast(values)
 
-    def delete(self):
-        print("THis is a movie delete service")
+    def delete(self, movieId):
+        print("[Movie Service] Executing method delete()")
+        self.database.delete(movieId)

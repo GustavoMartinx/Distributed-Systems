@@ -6,6 +6,11 @@ message Movie {
     repeated string genres = 3;
 }
 
+message MovieFilters {
+    string column = 1;
+    repeated string values = 2;
+}
+
 message Response {
     int32 status = 1;
     string message = 2;
@@ -15,4 +20,5 @@ message Response {
 message Request {
     string method = 1;
     optional Movie movie = 2;
+    optional MovieFilters filters = 3;
 }

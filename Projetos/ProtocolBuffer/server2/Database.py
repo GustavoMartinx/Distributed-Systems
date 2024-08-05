@@ -18,16 +18,12 @@ class Database:
         categories = self.collections.find({"genres": {"$in": categoriesList}}, {"genres": 1})
         return format(categories, indent=4)
 
-    def findByCast(self, castList):
-        cast = self.collections.find({"cast": {"$in": castList}}, {"cast": 1})
+    def findByCast(self, values):
+        cast = self.collections.find({"cast": {"$in": values}}, {"cast": 1})
         return format(cast, indent=4)
-
-    def findByTitle(self, title):
-        movies = self.collections.find({"title": title})
-        return format(movies)
         
     def insert(self, movie):
         self.collections.insert_one({"title": movie.title})
     
-    def delete(self, id): 
-        self.collections.delete_one({"_id": id})
+    def delete(self, movieId): 
+        self.collections.delete_one({"_id":movieId})
