@@ -6,7 +6,7 @@ from bson.json_util import dumps
 
 class Database:
     def __init__(self):
-        uri = "mongodb+srv://diogorodriguees:diogorodrigueesacess@sd-external-data-repres.9oh60so.mongodb.net/?retryWrites=true&w=majority&appName=sd-external-data-representation"
+        uri = ""
         self.client = MongoClient(uri, server_api=ServerApi('1'))
         self.database = self.client.get_database("sample_mflix")
         self.collections = self.database.get_collection("movies")
