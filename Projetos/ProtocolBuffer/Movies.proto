@@ -1,7 +1,12 @@
 syntax = "proto3";
 
-message Movie {
-    string title = 1;
-    int32 id = 2;
+message Answer {
+    int32 id = 1;
+    string title = 2;
     string directors = 3;
+}
+
+message Request {
+    int32 operation_id = 1;
+    string value = 2;
 }

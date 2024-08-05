@@ -13,15 +13,13 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x0cMovies.proto\"6\n\x06\x41nswer\x12\n\n\x02id\x18\x01 \x01(\x05\x12\r\n\x05title\x18\x02 \x01(\t\x12\x11\n\tdirectors\x18\x03 \x01(\t\".\n\x07Request\x12\x14\n\x0coperation_id\x18\x01 \x01(\x05\x12\r\n\x05value\x18\x02 \x01(\tb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x0cMovies.proto\"5\n\x05Movie\x12\r\n\x05title\x18\x01 \x01(\t\x12\n\n\x02id\x18\x02 \x01(\x05\x12\x11\n\tdirectors\x18\x03 \x01(\tb\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'Movies_pb2', _globals)
 if _descriptor._USE_C_DESCRIPTORS == False:
   DESCRIPTOR._options = None
-  _globals['_ANSWER']._serialized_start=16
-  _globals['_ANSWER']._serialized_end=70
-  _globals['_REQUEST']._serialized_start=72
-  _globals['_REQUEST']._serialized_end=118
+  _globals['_MOVIE']._serialized_start=16
+  _globals['_MOVIE']._serialized_end=69
 # @@protoc_insertion_point(module_scope)

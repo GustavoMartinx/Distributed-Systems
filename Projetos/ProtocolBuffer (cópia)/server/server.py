@@ -21,7 +21,7 @@ def main():
             buffer = data_input.read(size_buffer)
             
             # Realiza o unmarshalling
-            movie = Movies_pb2.Request()
+            movie = Movies_pb2.Movie()
             movie.ParseFromString(buffer)
             
             print("==\n" + str(movie) + "==\n")

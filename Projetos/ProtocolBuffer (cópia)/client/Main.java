@@ -76,9 +76,10 @@ public class Main {
             }
 
             // Criando uma nova instância de Movie usando o Builder
-            Movies.Request movie = Movies.Request.newBuilder()
-                    .setOperationId(escolha)
-                    .setValue(nomeFilme)
+            Movies.Movie movie = Movies.Movie.newBuilder()
+                    .setTitle("Inception")
+                    .setId(1)
+                    .setDirectors("Christopher Nolan")
                     .build();
 
             // Serializando a instância de Movie para um byte array
@@ -101,16 +102,17 @@ public class Main {
             }
             try {
                 // Parsing the Movie instance from a byte array
-                Movies.Request parsedMovie = Movies.Request.parseFrom(movieBytes);
+                Movies.Movie parsedMovie = Movies.Movie.parseFrom(movieBytes);
 
                 // Accessing fields from the parsed Movie instance
-                System.out.println("Parsed Movie Title: " + parsedMovie.getOperationId());
-                System.out.println("Parsed Movie ID: " + parsedMovie.getValue());
+                System.out.println("Parsed Movie Title: " + parsedMovie.getTitle());
+                System.out.println("Parsed Movie ID: " + parsedMovie.getId());
+                System.out.println("Parsed Movie Directors: " + parsedMovie.getDirectors());
             } catch (InvalidProtocolBufferException e) {
                 e.printStackTrace();
             }
-            System.out.println("\n\n\n");
         }
+        System.out.println("\n\n\n");
     }
 
 }
