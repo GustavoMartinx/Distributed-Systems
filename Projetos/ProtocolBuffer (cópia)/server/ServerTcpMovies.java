@@ -1,3 +1,4 @@
+
 /**
  * ServerTcpMovies: [TODO: fornecer descrição do arquivo, conforme descrito em
  * https://moodle.utfpr.edu.br/mod/page/view.php?id=1594607].
@@ -10,10 +11,8 @@
  * 
 **/
 
-import java.io.BufferedReader;
 import java.io.DataInputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.net.ServerSocket;
 import java.net.Socket;
 
@@ -27,11 +26,10 @@ public class ServerTcpMovies {
                 System.out.println("Server running...");
                 Socket clientSocket = listenSocket.accept();
 
-                DataInputStream inClient = 
-                    new DataInputStream(clientSocket.getInputStream());
-                
+                DataInputStream inClient = new DataInputStream(clientSocket.getInputStream());
+
                 String valueStr = inClient.readLine();
-                
+
                 int sizeBuffer = Integer.valueOf(valueStr);
                 byte[] buffer = new byte[sizeBuffer];
                 clientSocket.getInputStream().read(buffer);
