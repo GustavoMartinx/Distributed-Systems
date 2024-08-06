@@ -6,6 +6,7 @@ from Movies_pb2 import Movie, Request, Response
 from Database import Database
 from MovieService import MovieService
 from MovieController import MovieController
+from bson.json_util import dumps
 
 class Server:
     def __init__(self):
@@ -13,29 +14,32 @@ class Server:
         self.movieService = MovieService(self.database)
         self.movieController = MovieController(self.movieService)
         
+    def middleware(self, request):
+        print("Using middleware, method: ", request.method)
+        if request.method == "CREATE":
+            return self.movieController.create(request)
+        if request.method == "FIND_BY_ATOR":
+            return self.movieController.findByAtor(request)
+        if request.method == "FIND_BY_CATEGORIA":
+            return self.movieController.findByCategories(request)
+        if request.method == "DELETE":
+            return self.movieController.delete(request)
+        
     def handle_client(self, client_socket):
         try:
             # Lê o tamanho do payload
             size_data = client_socket.recv(4)
             size = struct.unpack('!I', size_data)[0]
-            print("Size and size data ok")
+
             # Lê o payload
             data = client_socket.recv(size)
             
             # Deserializa a mensagem Request
             request = Request()
-            print("Builder request ok")
             request.ParseFromString(data)
-            print("Parse data to request ok")
-            
-            print(f"Método recebido: {request.method}")
-            print(f"Movie: {request.movie}")
-            
+
             # Prepara a resposta
-            response = Response(status=200, message="Sucesso!")
-            
-            print("Response:", response)
-            # Serializa a resposta
+            response = self.middleware(request)
             response_data = response.SerializeToString()
             
             # Envia o tamanho da resposta seguido pela própria resposta
