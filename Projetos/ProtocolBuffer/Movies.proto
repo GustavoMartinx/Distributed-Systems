@@ -1,12 +1,24 @@
 syntax = "proto3";
 
-message Answer {
-    int32 id = 1;
-    string title = 2;
-    string directors = 3;
+message Movie {
+    optional string id = 1;
+    optional string title = 2;
+    repeated string genres = 3;
+}
+
+message MovieFilters {
+    string column = 1;
+    repeated string values = 2;
+}
+
+message Response {
+    int32 status = 1;
+    string message = 2;
+    optional Movie movie = 3;
 }
 
 message Request {
-    int32 operation_id = 1;
-    string value = 2;
+    string method = 1;
+    optional Movie movie = 2;
+    optional MovieFilters filters = 3;
 }
