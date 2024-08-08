@@ -1,4 +1,3 @@
-import json
 import socket
 import struct
 
@@ -30,7 +29,6 @@ class Server:
             # Lê o tamanho do payload
             size_data = client_socket.recv(4)
             size = struct.unpack('!I', size_data)[0]
-
             # Lê o payload
             data = client_socket.recv(size)
             
@@ -53,14 +51,15 @@ class Server:
         server.bind(('localhost', 8080))  # Substitua 'localhost' pelo endereço IP desejado
         server.listen(1)
 
-        print("Server running...")
-        
+        print("Server online.")
+
+
         while True:
             try:
                 client_socket, addr = server.accept()
                 print(f"Conexão estabelecida com {addr}")
                 self.handle_client(client_socket)
-            
+
             except Exception as e:
                 print("Error: ", e)
             

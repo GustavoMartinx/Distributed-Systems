@@ -8,7 +8,7 @@ import pymongo
 
 class Database:
     def __init__(self):
-        uri = ""
+        uri = "mongodb+srv://gustavomartins:qx6dTXRB8ArWSrz2@cluster0.60zsz.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
         self.client = MongoClient(uri, connectTimeoutMS=60000, socketTimeoutMS=60000, server_api=ServerApi('1'))
         self.database = self.client.get_database("sample_mflix")
         self.collections = self.database.get_collection("movies")
@@ -16,6 +16,16 @@ class Database:
     def format(self, data):
         return dumps(data, indent=4)
 
+    def create(self, movie):
+        # self.collections.insert_one({})
+        print("Criado no DB!")
+    
+    def insert(self, movie):
+        self.collections.insert_one({"title": movie.title})
+    
+    def delete(self, movieId): 
+        self.collections.delete_one({"_id":movieId})
+    
     def findByGenres(self, categoriesList):
         print("[Database] Filtering categories with values: ", categoriesList)
         return self.collections.find({"genres": {"$in": categoriesList}}, {"genres": 1})
