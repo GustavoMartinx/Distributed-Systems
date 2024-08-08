@@ -15,10 +15,14 @@ class MovieService:
         m.genres.extend(list(movie.genres))
         m.cast.extend(list(movie.cast))
 
-        movie_created = self.database.insert(m)
-        movie = Movie()
-        movie.id = movie_created.inserted_id
-        return movie
+        print(m)
+        return ""
+
+        # movie_created = self.database.insert(m)
+        # print(movie_created)
+        # movie2 = Movie()
+        # movie2.id = movie_created.inserted_id
+        # return movie2
         
     def findByCategories(self, values):
         print("[Movie Service] Executing method findByCategories()")

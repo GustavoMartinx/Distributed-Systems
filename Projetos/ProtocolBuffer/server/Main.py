@@ -41,13 +41,16 @@ class Server:
 
             # Process request
             response = self.middleware(request)
+            print("Response: ", response)
 
             # Marshalling response
             response_data = response.SerializeToString()
+            print("serializou")
 
             # Send response size followd by response
-            response_size = struct.pack('!I', len(response_data))
-            client_socket.sendall(response_size)
+            # response_size = struct.pack('!I', len(response_data))
+            client_socket.sendall(f"{len(response_data)}\n".encode('utf-8'))
+            print("Tamanho foi enviado")
             client_socket.sendall(response_data)
         except Exception as e:
             print(f"Erro ao processar requisição: {e}")

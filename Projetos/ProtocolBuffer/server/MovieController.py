@@ -7,8 +7,8 @@ class MovieController:
     def create(self, request):
         try:
             print("[Movie Controller] Executing method create()")
-            movie = self.movieService.create(request.movie)
-            return Response(status=200, message="Successfuly on create movie", movie=movie)
+            # movie = self.movieService.create(request.movie)
+            return Response(status=200, message="Successfuly on create movie")
         except Exception as e:
             print(f"[Error] Failed on create movie: {e}")
             return Response(status=400, message="Failed on create movie: " + str(e))
