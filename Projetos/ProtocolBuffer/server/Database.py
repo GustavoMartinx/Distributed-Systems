@@ -18,19 +18,12 @@ class Database:
         
     def insert(self, movie):
         print(f"[Database] Inserting movie with title {movie.title}")
-        return self.collections.insert_one({"title": movie.title})
-
-    def delete(self, movieId): 
-        self.collections.delete_one({"_id":movieId})
-
-    # TODO: verificar quais são os métodos findByGenres e findByCast corretos
-    # def findByGenres(self, categoriesList):
-    #     print("[Database] Filtering categories with values: ", categoriesList)
-    #     return self.collections.find({"genres": {"$in": categoriesList}}, {"genres": 1})
-
-    # def findByCast(self, values):
-    #     print("[Database] Filtering autores with values: ", values)
-    #     return self.collections.find({"cast": {"$in": values}}, {"cast": 1})
+        return self.collections.insert_one({
+            "title": movie.title,
+            "directors": movie.directors,
+            "genres": movie.genres,
+            "cast": movie.cast,
+        })
 
     def findByGenres(self, values):
         print("[Database] Filtering categories with values: ", values)
@@ -40,3 +33,5 @@ class Database:
         print("[Database] Filtering autores with values print: ", values)
         return self.collections.find({"cast": {"$in": list(values)}})
         
+    def delete(self, movie): 
+        self.collections.delete_one({"_id": movie.id})
