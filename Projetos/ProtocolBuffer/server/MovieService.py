@@ -18,6 +18,7 @@ class MovieService:
         movies_list = []
         for movie in movies:
             new_movie = Movie()
+            new_movie.id = str(movie["_id"])
             new_movie.plot = movie["plot"]
             new_movie.genres.extend(list(movie["genres"]))
             new_movie.runtime = movie["runtime"]
@@ -33,7 +34,6 @@ class MovieService:
             new_movie.countries.extend(list(movie["countries"]))
             new_movie.type = movie["type"]
             movies_list.append(new_movie)
-
         return movies_list
         
     def findByAtor(self, values):
@@ -43,6 +43,7 @@ class MovieService:
         movies_list = []
         for movie in movies:
             new_movie = Movie()
+            new_movie.id = str(movie["_id"])
             new_movie.plot = movie["plot"]
             new_movie.genres.extend(list(movie["genres"]))
             new_movie.runtime = movie["runtime"]
@@ -58,5 +59,5 @@ class MovieService:
             new_movie.countries.extend(list(movie["countries"]))
             new_movie.type = movie["type"]
             movies_list.append(new_movie)
-            
+
         return movies_list
