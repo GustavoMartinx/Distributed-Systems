@@ -1,7 +1,0 @@
-/* Rodar -> christoferlv@christoferlv-Inspiron-5437:~/Área de Trabalho/trabalhoprotobuf/Dist
-ributed-Systems/Projetos/ProtocolBuffer/client$ java -cp .:protobuf-java-3.24.4.jar Main
-*/
-/*
- * Compilar -> christoferlv@christoferlv-Inspiron-5437:~/Área de Trabalho/trabalhoprotobuf/Dist
-ributed-Systems/Projetos/ProtocolBuffer/client$ javac -cp .:protobuf-java-3.24.4.jar Main.java 
- */

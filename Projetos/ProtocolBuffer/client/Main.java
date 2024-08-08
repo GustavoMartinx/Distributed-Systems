@@ -1,90 +1,120 @@
+import java.util.Scanner;
 import java.io.OutputStream;
+import java.io.DataOutputStream;
 import java.net.Socket;
 import java.rmi.server.Operation;
-
 import com.google.protobuf.InvalidProtocolBufferException;
-import java.util.Scanner;
-
-import java.io.DataOutputStream;
 
 public class Main {
-    public static Operation conversor(int op) {
+
+    public static String conversor(int op) {
+
         switch (op) {
             case 1:
-                return Operation.CREATE;
+                return Methods.create;
             case 2:
-                return Operation.READ;
+                return Methods.read;
             case 3:
-                return Operation.DELETE;
+                return Methods.delete;
             case 4:
-                return Operation.UPDATE;
+                return Methods.update;
             case 5:
-                return Operation.LIST_BY_ACTOR;
+                return Methods.findByCast;
             case 6:
-                return Operation.LIST_BY_CATEGORY;
+                return Methods.findByGenres;
         }
-        return Operation.EMPTY;
+        return Methods.empty;
     }
 
-    public enum Operation {
-        EMPTY,
-        CREATE,
-        READ,
-        UPDATE,
-        DELETE,
-        LIST_BY_ACTOR,
-        LIST_BY_CATEGORY;
+    /**
+     * Realiza o tratamento da escolha de opção do usuário, criando o objeto Movie que será utilizado pela Requisição.
+     * 
+     * @param builder - Movies.Movie.Builder
+     * @param operation - Opção escolhida pelo usuário
+     * @param reader - Objeto responsável pelo I/O
+     * @return Movies.Movie
+     */
+    public static Movies.Movie handleOption(Movies.Movie.Builder builder, int operation, Scanner reader) {
+        String movieName = "";
+        String cast = "";
+        String genre = "";
+        Movies.Movie movie;
+
+        switch (operation) {
+            case 1: // CREATE
+            case 4: // UPDATE
+                System.out.println("Digite o nome do filme:");
+                movieName = reader.nextLine();
+                builder.setTitle(movieName);
+
+                System.out.println("Digite o gênero do filme:");
+                genre = reader.nextLine();
+                builder.addGenres(genre);
+                break;
+
+            case 2: // READ
+            case 3: // DELETE
+                System.out.println("Digite o nome do filme:");
+                movieName = reader.nextLine();
+                builder.setTitle(movieName);
+                break;
+
+            case 5: // TODO: FIND BY CAST (adicionar na estrutura protobuf)
+                System.out.println("Oops! Opção indisponível no momento.");
+                // System.out.println("Digite o nome de um membro do elenco:");
+                // cast = reader.nextLine();
+                // builder.addCast(cast);
+                break;
+
+            case 6: // FIND BY GENRES
+                System.out.println("Digite o gênero do filme:");
+                genre = reader.nextLine();
+                builder.addGenres(genre);
+                break;
+        }
+
+        movie = builder.build();
+        return movie;
     }
 
     public static void main(String[] args) {
+        
+        int choise = -1;
         Scanner reader = new Scanner(System.in);
-        Operation operacaoAtual = Operation.EMPTY;
+        String currentOperation = Methods.empty;
+        Movies.Movie.Builder builder;
 
-        int escolha = -1;
-        String nomeFilme = "";
-        String nomeAtor = "";
-        String nomeCategoria = "";
-
-        System.out.println("BEM VINDO AO PROTO FILMES!");
+        System.out.println("BEM-VINDO AO PROTO FILMES!");
 
         while (true) {
-            System.out.println("ESCOLHA O QUE VOCÊ QUER FAZER");
-            System.out.println("1. CADASTRAR UM FILME");
-            System.out.println("2. CONSULTAR UM FILME PELO TITULO");
-            System.out.println("3. DELETAR UM FILME PELO TITULO");
-            System.out.println("4. ATUALIZAR AS INFORMAÇÔES DE UM FILME");
-            System.out.println("5. LISTAR OS FILMES COM UM ATOR");
-            System.out.println("6. LISTAR OS FILMES DE UMA CATEGORIA");
-            System.out.println("DIGITE O NÚMERO DA OPÇÂO");
+            System.out.print("""
+                DIGITE O NÚMERO DA OPÇÃO DESEJADA:
+                1. CADASTRAR UM FILME
+                2. CONSULTAR UM FILME PELO TÍTULO
+                3. DELETAR UM FILME PELO TÍTULO
+                4. ATUALIZAR AS INFORMAÇÔES DE UM FILME
+                5. LISTAR OS FILMES COM UM ATOR
+                6. LISTAR OS FILMES DE UM GÊNERO
+                """);
 
-            escolha = Integer.parseInt(reader.nextLine());
-            operacaoAtual = conversor(escolha);
+            choise = Integer.parseInt(reader.nextLine());
 
-            if (operacaoAtual != Operation.LIST_BY_ACTOR && operacaoAtual != Operation.LIST_BY_CATEGORY) {
-                System.out.println("Digite o nome do filme");
-                nomeFilme = reader.nextLine();
-            }
+            // Reinicializando o builder a cada iteração do laço
+            builder = Movies.Movie.newBuilder();
 
-            if (operacaoAtual == Operation.LIST_BY_ACTOR) {
-                System.out.println("Digite o nome do ator");
-                nomeAtor = reader.nextLine();
-            }
+            Movies.Movie movie = handleOption(builder, choise, reader);
+            currentOperation = conversor(choise);
 
-            if (operacaoAtual == Operation.LIST_BY_CATEGORY) {
-                System.out.println("Digite a categoria");
-                nomeCategoria = reader.nextLine();
-            }
-
-            // Criando uma nova instância de Movie usando o Builder
-            Movies.Request movie = Movies.Request.newBuilder()
-                    .setOperationId(escolha)
-                    .setValue(nomeFilme)
+            // Criando uma nova instância de Requisição usando o Builder
+            Movies.Request request = Movies.Request.newBuilder()
+                    .setMethod(currentOperation)
+                    .setMovie(movie)
                     .build();
 
-            // Serializando a instância de Movie para um byte array
-            byte[] movieBytes = movie.toByteArray();
+            // Serializando a instância de Requisição para um byte array
+            byte[] movieBytes = request.toByteArray();
 
-            try (Socket socket = new Socket("localhost", 7000);
+            try (Socket socket = new Socket("localhost", 8080);
                     OutputStream outputStream = socket.getOutputStream();
                     DataOutputStream dataOutputStream = new DataOutputStream(outputStream)) {
 
@@ -104,8 +134,8 @@ public class Main {
                 Movies.Request parsedMovie = Movies.Request.parseFrom(movieBytes);
 
                 // Accessing fields from the parsed Movie instance
-                System.out.println("Parsed Movie Title: " + parsedMovie.getOperationId());
-                System.out.println("Parsed Movie ID: " + parsedMovie.getValue());
+                // System.out.println("Parsed Movie Title: " + parsedMovie.getId());
+                // System.out.println("Parsed Movie ID: " + parsedMovie.getValue());
             } catch (InvalidProtocolBufferException e) {
                 e.printStackTrace();
             }
