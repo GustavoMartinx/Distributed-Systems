@@ -7,11 +7,11 @@ class MovieController:
     def create(self, request):
         try:
             print("[Movie Controller] Executing method create()")
-            # movie = self.movieService.create(request.movie)
-            return Response(status=200, message="Successfuly on create movie")
+            movie = self.movieService.create(request.movie)
+            return Response(status=200, message="Movie created successfully!", movie=movie)
         except Exception as e:
-            print(f"[Error] Failed on create movie: {e}")
-            return Response(status=400, message="Failed on create movie: " + str(e))
+            print(f"[Error] Failed to create movie: {e}")
+            return Response(status=400, message="Failed on movie creation: " + str(e))
         
     def findByCategories(self, request):
         try:

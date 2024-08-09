@@ -1,10 +1,8 @@
+from google.protobuf.json_format import MessageToDict
 from pymongo.mongo_client import MongoClient
 from pymongo.server_api import ServerApi
 from pymongo.mongo_client import MongoClient
-from pymongo.server_api import ServerApi
 from bson.json_util import dumps
-from Movies_pb2 import Movie
-import pymongo
 
 class Database:
     def __init__(self):
@@ -17,13 +15,9 @@ class Database:
         return dumps(data, indent=4)
         
     def insert(self, movie):
-        print(f"[Database] Inserting movie with title {movie.title}")
-        # return self.collections.insert_one({
-        #     "title": movie.title,
-        #     "directors": movie.directors,
-        #     "genres": movie.genres,
-        #     "cast": movie.cast,
-        # })
+        print(f"[Database] Inserting movie '{movie.title}'")
+        movie_dict = MessageToDict(movie)
+        return self.collections.insert_one(movie_dict)
 
     def findByGenres(self, values):
         print("[Database] Filtering categories with values: ", values)
