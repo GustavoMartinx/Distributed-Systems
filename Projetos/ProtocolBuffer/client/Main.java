@@ -2,6 +2,7 @@ import java.util.Scanner;
 import java.io.OutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.Socket;
 import java.rmi.server.Operation;
@@ -24,6 +25,8 @@ public class Main {
                 return Methods.findByCast;
             case 6:
                 return Methods.findByGenres;
+            case 7:
+                return Methods.exit;
         }
         return Methods.empty;
     }
@@ -127,96 +130,100 @@ public class Main {
         Movies.Movie.Builder movieBuilder;
         Movies.MovieFilters.Builder movieFilterBuilder;
 
-        System.out.println("BEM-VINDO AO PROTO FILMES!");
-        try{
+        Socket socket;
+        OutputStream outputStream;
+        DataOutputStream dataOutputStream;
+        InputStream inputStream;
+        DataInputStream dataInputStream;
 
-        Socket socket = new Socket("localhost", 8080);
-        OutputStream outputStream = socket.getOutputStream();
-        DataOutputStream dataOutputStream = new DataOutputStream(outputStream);
+        System.out.println("\nBEM-VINDO AO PROTO FILMES!\n");
+
+        try {
+            socket = new Socket("localhost", 8080);
+            outputStream = socket.getOutputStream();
+            dataOutputStream = new DataOutputStream(outputStream);
+                    
+            inputStream = socket.getInputStream();
+            dataInputStream = new DataInputStream(inputStream);
+                    
+            while (true) {
+                System.out.print("""
+                    Digite o número da opção desejada:
+                    ---------------------------------------
+                    1. Cadastrar um filme
+                    2. Consultar um filme
+                    3. Deletar um filme
+                    4. Atualizar as informações de um filme
+                    5. Listar os filmes de um membro do elenco
+                    6. Listar os filmes de um gênero
+                    7. Sair
+                    ---------------------------------------
+                    """);
+
+                choise = Integer.parseInt(reader.nextLine());
+
+                // Reinicializando o builder a cada iteração do laço
+                movieBuilder = Movies.Movie.newBuilder();
+                movieFilterBuilder = Movies.MovieFilters.newBuilder();
+
+                Movies.Movie movie = handleOption(movieBuilder, choise, reader);
+                currentMethod = conversor(choise);
+
+                if (currentMethod == Methods.exit) {
+                    dataInputStream.close();
+                    dataOutputStream.close();
+                    socket.close();
+                    System.out.println("PROTO FILMES FINALIZADO.");
+                    break;
+                } else if(currentMethod == Methods.findByCast) {
+                    movieFilterBuilder.addValues(Methods.findByCast);
+                } else if(currentMethod == Methods.findByGenres) {
+                    movieFilterBuilder.addValues(Methods.findByGenres);
+                }
+
+                Movies.MovieFilters filter = movieFilterBuilder.build();
+
+                // Criando uma nova instância de Requisição usando o Builder
+                Movies.Request request = Movies.Request.newBuilder()
+                        .setMethod(currentMethod)
+                        .setMovie(movie)
+                        .setFilters(filter)
+                        .build();
+
+                // Serializando a instância de Requisição para um byte array
+                byte[] movieBytes = request.toByteArray();
+
                 
-        InputStream inputStream = socket.getInputStream();
-        DataInputStream dataInputStream = new DataInputStream(inputStream);
-                
-        while (true) {
-            System.out.print("""
-                DIGITE O NÚMERO DA OPÇÃO DESEJADA:
-                ---------------------------------------
-                1. CADASTRAR UM FILME
-                2. CONSULTAR UM FILME PELO TÍTULO
-                3. DELETAR UM FILME PELO TÍTULO
-                4. ATUALIZAR AS INFORMAÇÔES DE UM FILME
-                5. LISTAR OS FILMES COM UM ATOR
-                6. LISTAR OS FILMES DE UM GÊNERO
-                ---------------------------------------
-                """);
-
-            choise = Integer.parseInt(reader.nextLine());
-
-            // Reinicializando o builder a cada iteração do laço
-            movieBuilder = Movies.Movie.newBuilder();
-            movieFilterBuilder = Movies.MovieFilters.newBuilder();
-
-            Movies.Movie movie = handleOption(movieBuilder, choise, reader);
-            currentMethod = conversor(choise);
-
-            if(currentMethod == Methods.findByCast) {
-                movieFilterBuilder.addValues(Methods.findByCast);
-            } else if(currentMethod == Methods.findByGenres) {
-                movieFilterBuilder.addValues(Methods.findByGenres);
-            }
-            Movies.MovieFilters filter = movieFilterBuilder.build();
-
-            // Criando uma nova instância de Requisição usando o Builder
-            Movies.Request request = Movies.Request.newBuilder()
-                    .setMethod(currentMethod)
-                    .setMovie(movie)
-                    .setFilters(filter)
-                    .build();
-
-            // Serializando a instância de Requisição para um byte array
-            byte[] movieBytes = request.toByteArray();
-
-            try {
-
+                // Enviando requisição
                 // Enviando o tamanho do byte array primeiro
                 dataOutputStream.writeInt(movieBytes.length);
 
                 // Enviando o byte array
                 dataOutputStream.write(movieBytes);
-
                 System.out.println("Dados enviados ao servidor.");
-                
-                
+
+
                 // Recebendo resposta
                 System.out.println("Aguardando resposta do servidor.");
 
-                // 
+                // Lendo a quantidade de bytes da resposta
                 String sizeString = dataInputStream.readLine();
-                System.out.println("Read line funcionando");
                 int responseSize = Integer.parseInt(sizeString);
-                System.out.println("Tamanho veio");
-                // 
+                System.out.println("Tamanho da resposta em bytes: " + responseSize);
+                
+                // Lendo o conteúdo da resposta do socket
                 byte[] buffer = new byte[responseSize];
                 dataInputStream.read(buffer);
-                System.out.println("Response tbm ta funfando");
 
-                // Parsing the Movie instance from a byte array
-                Movies.Response parsedMovie = Movies.Response.parseFrom(buffer);
-
-              System.out.println(parsedMovie);
-                //System.out.println("teste22");
-
-            } catch (Exception e) {
-                // e.printStackTrace();
-                System.out.println("ALguma coisa n ta funfando");
+                // Desserialização da resposta através do método gerado pelo proto
+                Movies.Response parsedResponse = Movies.Response.parseFrom(buffer);
+                System.out.println("Resposta: " + parsedResponse);
             }
-            // System.out.println("\n\n\n");
         }
-    }
-    catch(Exception e) {
-        System.out.println("ALguma coisa n ta funfando");
-
-    }
+        catch(Exception e) {
+            System.out.println("[Erro]: ");
+            e.printStackTrace();
+        }
     }
 
 }
