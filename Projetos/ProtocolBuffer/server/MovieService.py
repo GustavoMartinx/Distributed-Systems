@@ -17,9 +17,14 @@ class MovieService:
 
         movie_creation_response = Movie()
         movie_creation_response.id = str(movie_created.inserted_id)
-        # TODO: chamar o read para retornar todos os campos do filme
+        # TODO: chamar o retrieve para retornar todos os campos do filme
         return movie_creation_response
     
+    def retrieve(self, movie):
+        print("[Movie Service] Executing method retrieve()")
+        movie_retrieved = self.database.find(movie)
+        return movie_retrieved
+
     def update(self, movie):
         print("[Movie Service] Executing method update()")
         movie_updated = self.database.update(movie)

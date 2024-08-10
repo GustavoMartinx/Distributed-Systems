@@ -72,14 +72,10 @@ public class Main {
 
                 break;
 
-            case 2: // READ # TODO: passar nome ou ID?
-                System.out.println("Digite o nome do filme:");
-                movieName = reader.nextLine();
-                movieBuilder.setTitle(movieName);
-
-                // System.out.println("Digite o ID do filme:");
-                // movieID = reader.nextLine();
-                // movieBuilder.setId(movieID);
+            case 2: // READ
+                System.out.println("Digite o ID do filme:");
+                movieID = reader.nextLine();
+                movieBuilder.setId(movieID);
                 break;
 
             case 3: // DELETE

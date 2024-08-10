@@ -1,9 +1,8 @@
 from google.protobuf.json_format import MessageToDict
 from pymongo.mongo_client import MongoClient
 from pymongo.server_api import ServerApi
-from pymongo.mongo_client import MongoClient
-from bson.json_util import dumps
 from bson.objectid import ObjectId
+from bson.json_util import dumps
 
 class Database:
     def __init__(self):
@@ -19,6 +18,11 @@ class Database:
         print(f"[Database] Inserting movie '{movie.title}'")
         movie_dict = MessageToDict(movie)
         return self.collections.insert_one(movie_dict)
+    
+    def find(self, movie):
+        print(f"[Database] Retrieving movie '{movie.id}'")
+        retrieved_movie = self.collections.find_one({"_id": ObjectId(movie.id)})
+        return retrieved_movie
 
     def update(self, movie):
         print(f"[Database] Updating movie '{movie.title}'")

@@ -18,6 +18,8 @@ class Server:
         print("Using middleware, method: ", request.method)
         if request.method == "CREATE":
             return self.movieController.create(request)
+        if request.method == "READ":
+            return self.movieController.retrieve(request)
         if request.method == "FIND_BY_ATOR":
             return self.movieController.findByAtor(request)
         if request.method == "FIND_BY_CATEGORIA":
@@ -46,12 +48,9 @@ class Server:
 
             # Marshalling response
             response_data = response.SerializeToString()
-            print("serializou")
 
             # Send response size followd by response
-            # response_size = struct.pack('!I', len(response_data))
             client_socket.sendall(f"{len(response_data)}\n".encode('utf-8'))
-            print("Tamanho foi enviado")
             client_socket.sendall(response_data)
         except Exception as e:
             print(f"Erro ao processar requisição: {e}")
