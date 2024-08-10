@@ -65,6 +65,11 @@ public class Main {
                 System.out.println("Digite o nome de um membro do elenco:");
                 cast = reader.nextLine();
                 movieBuilder.addCast(cast);
+
+                System.out.println("Digite a sinopse do filme:");
+                plot = reader.nextLine();
+                movieBuilder.setPlot(plot);
+
                 break;
 
             case 2: // READ # TODO: passar nome ou ID?
@@ -92,6 +97,14 @@ public class Main {
                 movieName = reader.nextLine();
                 movieBuilder.setTitle(movieName);
 
+                System.out.println("Digite os diretores do filme:");
+                directors = reader.nextLine();
+                movieBuilder.addDirectors(directors);
+
+                System.out.println("Digite o gênero do filme:");
+                genre = reader.nextLine();
+                movieBuilder.addGenres(genre);
+
                 System.out.println("Digite o nome de um membro do elenco:");
                 cast = reader.nextLine();
                 movieBuilder.addCast(cast);
@@ -99,10 +112,6 @@ public class Main {
                 System.out.println("Digite a sinopse do filme:");
                 plot = reader.nextLine();
                 movieBuilder.setPlot(plot);
-
-                System.out.println("Digite o gênero do filme:");
-                genre = reader.nextLine();
-                movieBuilder.addGenres(genre);
                 break;
 
             case 5: // FIND BY CAST
@@ -154,7 +163,7 @@ public class Main {
                     2. Consultar um filme
                     3. Deletar um filme
                     4. Atualizar as informações de um filme
-                    5. Listar os filmes de um membro do elenco
+                    5. Listar os filmes de um ator ou atriz
                     6. Listar os filmes de um gênero
                     7. Sair
                     ---------------------------------------
@@ -200,7 +209,7 @@ public class Main {
 
                 // Enviando o byte array
                 dataOutputStream.write(movieBytes);
-                System.out.println("Dados enviados ao servidor.");
+                System.out.println("\nDados enviados ao servidor.");
 
 
                 // Recebendo resposta
@@ -217,7 +226,7 @@ public class Main {
 
                 // Desserialização da resposta através do método gerado pelo proto
                 Movies.Response parsedResponse = Movies.Response.parseFrom(buffer);
-                System.out.println("Resposta: " + parsedResponse);
+                System.out.println("\nResposta: " + parsedResponse);
             }
         }
         catch(Exception e) {

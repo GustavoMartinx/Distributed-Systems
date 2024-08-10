@@ -13,11 +13,24 @@ class MovieController:
             print(f"[Error] Failed to create movie: {e}")
             return Response(status=400, message="Failed on movie creation: " + str(e))
         
+    def update(self, request):
+        try:
+            print("[Movie Controller] Executing method update()")
+            movie_updated = self.movieService.update(request.movie)
+            if movie_updated > 0:
+                return Response(status=200, message="Successfully on update movie")
+            else:
+                raise Exception("Something went wrong while updating movie.")
+        except Exception as e:
+            print(f"[Error] Failed on update movie: {e}")
+            return Response(status=400, message="Failed on update movie: " + str(e))
+        
+        
     def findByCategories(self, request):
         try:
             print("[Movie Controller] Executing method findByCategories()")
             response = self.movieService.findByCategories(request.filters.values)
-            return Response(status=200, message="Successfuly on find movie by categories", movies=response)
+            return Response(status=200, message="Successfully on find movie by categories", movies=response)
         except Exception as e:
             print(f"[Error] Failed on find movie by categories{e}")
             return Response(status=400, message="Failed on find movie by categories: " + str(e))
@@ -26,7 +39,19 @@ class MovieController:
         try:
             print("[Movie Controller] Executing method findByAtor()")
             response = self.movieService.findByAtor(request.filters.values)
-            return Response(status=200, message="Successfuly on find movie by ator", movies=response)
+            return Response(status=200, message="Successfully on find movie by ator", movies=response)
         except Exception as e:
             print(f"[Error] Failed on find movie by actors{e}")
             return Response(status=400, message="Failed on find movie by actor: " + str(e))
+    
+    def delete(self, request):
+        try:
+            print("[Movie Controller] Executing method delete()")
+            movie_deleted = self.movieService.delete(request.movie)
+            if movie_deleted > 0:
+                return Response(status=200, message="Movie deleted successfully!")
+            else:
+                raise Exception("Something went wrong while deleting movie.")
+        except Exception as e:
+            print(f"[Error] Failed on delete movie: {e}")
+            return Response(status=400, message="Failed on delete movie" + str(e))
