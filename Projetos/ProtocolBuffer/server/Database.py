@@ -37,9 +37,9 @@ class Database:
             "plot": movie.plot,
         }})
 
-    def findByGenres(self, values):
-        print("[Database] Filtering categories with values: ", values)
-        return self.collections.find({"genres": {"$in": list(values)}})
+    def findByGenres(self, genres_list):
+        print("[Database] Filtering categories with genres list: ", genres_list)
+        return self.collections.find({"genres": {"$in": list(genres_list)}})
 
     def findByCast(self, cast_list):
         print("[Database] Filtering autores with cast list: ", cast_list)

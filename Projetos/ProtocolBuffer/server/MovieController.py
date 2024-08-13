@@ -42,17 +42,17 @@ class MovieController:
     def findByCategories(self, request):
         try:
             print("[Movie Controller] Executing method findByCategories()")
-            response = self.movieService.findByCategories(request.filters.values)
-            return Response(status=200, message="Successfully on find movie by categories", movies=response)
+            movies_array = self.movieService.findByCategories(request.filters.values)
+            return Response(status=200, message="Successfully on find movie by genres!", movies=movies_array)
         except Exception as e:
-            print(f"[Error] Failed on find movie by categories{e}")
+            print(f"[Error] Failed on find movie by categories {e}")
             return Response(status=400, message="Failed on find movie by categories: " + str(e))
         
     def findByAtor(self, request):
         try:
             print("[Movie Controller] Executing method findByAtor()")
-            movie_array = self.movieService.findByAtor(request.filters.values)
-            return Response(status=200, message="Successfully on find movie by cast!", movies=movie_array)
+            movies_array = self.movieService.findByAtor(request.filters.values)
+            return Response(status=200, message="Successfully on find movie by cast!", movies=movies_array)
         except Exception as e:
             print(f"[Error] Failed on find movie by actors {e}")
             return Response(status=400, message="Failed on find movie by actor: " + str(e))
