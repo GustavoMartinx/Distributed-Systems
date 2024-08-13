@@ -1,3 +1,4 @@
+from google.protobuf.json_format import ParseDict
 from Movies_pb2 import Movie
 
 class MovieService:
@@ -17,13 +18,18 @@ class MovieService:
 
         movie_creation_response = Movie()
         movie_creation_response.id = str(movie_created.inserted_id)
-        # TODO: chamar o retrieve para retornar todos os campos do filme
+
+        movie_creation_response = self.retrieve(movie_creation_response)
         return movie_creation_response
     
     def retrieve(self, movie):
         print("[Movie Service] Executing method retrieve()")
         movie_retrieved = self.database.find(movie)
-        return movie_retrieved
+
+        movie_retrieved['id'] = str(movie_retrieved.pop('_id'))
+        movie_retrieved_response = ParseDict(movie_retrieved, Movie())
+
+        return movie_retrieved_response
 
     def update(self, movie):
         print("[Movie Service] Executing method update()")
