@@ -32,21 +32,22 @@ public class Main {
     }
 
     /**
-     * Realiza o tratamento da escolha de opção do usuário, criando o objeto Movie que será utilizado pela Requisição.
+     * Realiza o tratamento da escolha de opção do usuário, criando o objeto Movie
+     * que será utilizado pela Requisição.
      * 
      * @param movieBuilder - Movies.Movie.Builder
-     * @param operation - Opção escolhida pelo usuário
-     * @param reader - Objeto responsável pelo I/O
-     * @return Movies.Movie
+     * @param movieFilterBuilder - Movies.MovieFilters.Builder
+     * @param operation    - Opção escolhida pelo usuário
+     * @param reader       - Objeto responsável pelo I/O
      */
-    public static Movies.Movie handleOption(Movies.Movie.Builder movieBuilder, int operation, Scanner reader) {
+    public static void handleOption(Movies.Movie.Builder movieBuilder, Movies.MovieFilters.Builder movieFilterBuilder, int operation, Scanner reader) {
+
         String movieID = "";
         String movieName = "";
         String directors = "";
         String plot = "";
         String cast = "";
         String genre = "";
-        Movies.Movie movie;
 
         switch (operation) {
             case 1: // CREATE
@@ -57,11 +58,11 @@ public class Main {
                 System.out.println("Digite os diretores do filme:");
                 directors = reader.nextLine();
                 movieBuilder.addDirectors(directors);
-                
+
                 System.out.println("Digite o gênero do filme:");
                 genre = reader.nextLine();
                 movieBuilder.addGenres(genre);
-                
+
                 System.out.println("Digite o nome de um membro do elenco:");
                 cast = reader.nextLine();
                 movieBuilder.addCast(cast);
@@ -83,12 +84,12 @@ public class Main {
                 movieID = reader.nextLine();
                 movieBuilder.setId(movieID);
                 break;
-                
+
             case 4: // UPDATE
                 System.out.println("Digite o ID do filme:");
                 movieID = reader.nextLine();
                 movieBuilder.setId(movieID);
-                
+
                 System.out.println("Digite o nome do filme:");
                 movieName = reader.nextLine();
                 movieBuilder.setTitle(movieName);
@@ -113,22 +114,19 @@ public class Main {
             case 5: // FIND BY CAST
                 System.out.println("Digite o nome de um membro do elenco:");
                 cast = reader.nextLine();
-                movieBuilder.addCast(cast);
+                movieFilterBuilder.addValues(cast);
                 break;
 
             case 6: // FIND BY GENRES
                 System.out.println("Digite o gênero do filme:");
                 genre = reader.nextLine();
-                movieBuilder.addGenres(genre);
+                movieFilterBuilder.addValues(genre);
                 break;
         }
-
-        movie = movieBuilder.build();
-        return movie;
     }
 
     public static void main(String[] args) {
-        
+
         int choise = -1;
         Scanner reader = new Scanner(System.in);
         String currentMethod = Methods.empty;
@@ -147,23 +145,23 @@ public class Main {
             socket = new Socket("localhost", 8080);
             outputStream = socket.getOutputStream();
             dataOutputStream = new DataOutputStream(outputStream);
-                    
+
             inputStream = socket.getInputStream();
             dataInputStream = new DataInputStream(inputStream);
-                    
+
             while (true) {
                 System.out.print("""
-                    Digite o número da opção desejada:
-                    ---------------------------------------
-                    1. Cadastrar um filme
-                    2. Consultar um filme
-                    3. Deletar um filme
-                    4. Atualizar as informações de um filme
-                    5. Listar os filmes de um ator ou atriz
-                    6. Listar os filmes de um gênero
-                    7. Sair
-                    ---------------------------------------
-                    """);
+                        Digite o número da opção desejada:
+                        ---------------------------------------
+                        1. Cadastrar um filme
+                        2. Consultar um filme
+                        3. Deletar um filme
+                        4. Atualizar as informações de um filme
+                        5. Listar os filmes de um ator ou atriz
+                        6. Listar os filmes de um gênero
+                        7. Sair
+                        ---------------------------------------
+                        """);
 
                 choise = Integer.parseInt(reader.nextLine());
 
@@ -171,7 +169,6 @@ public class Main {
                 movieBuilder = Movies.Movie.newBuilder();
                 movieFilterBuilder = Movies.MovieFilters.newBuilder();
 
-                Movies.Movie movie = handleOption(movieBuilder, choise, reader);
                 currentMethod = conversor(choise);
 
                 if (currentMethod == Methods.exit) {
@@ -180,14 +177,13 @@ public class Main {
                     socket.close();
                     System.out.println("PROTO FILMES FINALIZADO.");
                     break;
-                } else if(currentMethod == Methods.findByCast) {
-                    movieFilterBuilder.addValues(Methods.findByCast);
-                } else if(currentMethod == Methods.findByGenres) {
-                    movieFilterBuilder.addValues(Methods.findByGenres);
                 }
-
+                
+                handleOption(movieBuilder, movieFilterBuilder, choise, reader);
+                
                 Movies.MovieFilters filter = movieFilterBuilder.build();
-
+                Movies.Movie movie = movieBuilder.build();
+                
                 // Criando uma nova instância de Requisição usando o Builder
                 Movies.Request request = Movies.Request.newBuilder()
                         .setMethod(currentMethod)
@@ -198,7 +194,6 @@ public class Main {
                 // Serializando a instância de Requisição para um byte array
                 byte[] movieBytes = request.toByteArray();
 
-                
                 // Enviando requisição
                 // Enviando o tamanho do byte array primeiro
                 dataOutputStream.writeInt(movieBytes.length);
@@ -207,7 +202,6 @@ public class Main {
                 dataOutputStream.write(movieBytes);
                 System.out.println("\nDados enviados ao servidor.");
 
-
                 // Recebendo resposta
                 System.out.println("Aguardando resposta do servidor.");
 
@@ -215,7 +209,7 @@ public class Main {
                 String sizeString = dataInputStream.readLine();
                 int responseSize = Integer.parseInt(sizeString);
                 System.out.println("Tamanho da resposta em bytes: " + responseSize);
-                
+
                 // Lendo o conteúdo da resposta do socket
                 byte[] buffer = new byte[responseSize];
                 dataInputStream.read(buffer);
@@ -224,8 +218,7 @@ public class Main {
                 Movies.Response parsedResponse = Movies.Response.parseFrom(buffer);
                 System.out.println("\nResposta: " + parsedResponse);
             }
-        }
-        catch(Exception e) {
+        } catch (Exception e) {
             System.out.println("[Erro]: ");
             e.printStackTrace();
         }

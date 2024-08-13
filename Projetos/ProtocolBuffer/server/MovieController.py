@@ -31,7 +31,7 @@ class MovieController:
             print("[Movie Controller] Executing method update()")
             movie_updated = self.movieService.update(request.movie)
             if movie_updated > 0:
-                return Response(status=200, message="Successfully on update movie")
+                return Response(status=200, message="Movie updated successfully!")
             else:
                 raise Exception("Something went wrong while updating movie.")
         except Exception as e:
@@ -51,10 +51,10 @@ class MovieController:
     def findByAtor(self, request):
         try:
             print("[Movie Controller] Executing method findByAtor()")
-            response = self.movieService.findByAtor(request.filters.values)
-            return Response(status=200, message="Successfully on find movie by ator", movies=response)
+            movie_array = self.movieService.findByAtor(request.filters.values)
+            return Response(status=200, message="Successfully on find movie by cast!", movies=movie_array)
         except Exception as e:
-            print(f"[Error] Failed on find movie by actors{e}")
+            print(f"[Error] Failed on find movie by actors {e}")
             return Response(status=400, message="Failed on find movie by actor: " + str(e))
     
     def delete(self, request):

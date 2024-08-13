@@ -34,31 +34,6 @@ class MovieService:
     def findByCategories(self, values):
         print("[Movie Service] Executing method findByCategories()")
         movies = self.database.findByGenres(values)
-        
-        movies_list = []
-        for movie in movies:
-            new_movie = Movie()
-            new_movie.id = str(movie["_id"])
-            new_movie.plot = movie["plot"]
-            new_movie.genres.extend(list(movie["genres"]))
-            new_movie.runtime = movie["runtime"]
-            new_movie.cast.extend(list(movie["cast"]))
-            new_movie.num_mflix_comments = movie["num_mflix_comments"]
-            new_movie.title = movie["title"]
-            new_movie.fullplot = movie["fullplot"]
-            new_movie.languages.extend(list(movie["languages"]))
-            new_movie.directors.extend(list(movie["directors"]))
-            new_movie.rated = movie["rated"]
-            new_movie.lastupdated = movie["lastupdated"]
-            new_movie.year = movie["year"]
-            new_movie.countries.extend(list(movie["countries"]))
-            new_movie.type = movie["type"]
-            movies_list.append(new_movie)
-        return movies_list
-        
-    def findByAtor(self, values):
-        print("[Movie Service] Executing method findByAtor()")
-        movies = self.database.findByCast(values)
 
         movies_list = []
         for movie in movies:
@@ -78,6 +53,33 @@ class MovieService:
             new_movie.year = movie["year"]
             new_movie.countries.extend(list(movie["countries"]))
             new_movie.type = movie["type"]
+            movies_list.append(new_movie)
+        
+        return movies_list
+        
+    def findByAtor(self, values):
+        print("[Movie Service] Executing method findByAtor()")
+        movies = self.database.findByCast(values)
+
+        movies_list = []
+        for movie in movies:
+            new_movie = Movie()
+            new_movie.id = str(movie.get("_id"))
+            new_movie.title = movie.get("title")
+            new_movie.genres.extend(list(movie.get("genres", [])))
+            new_movie.cast.extend(list(movie.get("cast", [])))
+            new_movie.directors.extend(list(movie.get("directors", [])))
+            new_movie.plot = movie.get("plot")
+            # new_movie.runtime = movie.get("runtime")
+            # new_movie.num_mflix_comments = movie.get("num_mflix_comments")
+            # new_movie.fullplot = movie.get("fullplot")
+            # new_movie.languages.extend(list(movie.get("languages", [])))
+            # new_movie.rated = movie.get("rated")
+            # new_movie.lastupdated = movie.get("lastupdated")
+            # new_movie.year = movie.get("year")
+            # new_movie.countries.extend(list(movie.get("countries", [])))
+            # new_movie.type = movie.get("type")
+
             movies_list.append(new_movie)
 
         return movies_list
