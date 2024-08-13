@@ -65,3 +65,6 @@ class MovieController:
         except Exception as e:
             print(f"[Error] Failed on delete movie: {e}")
             return Response(status=400, message="Failed on delete movie" + str(e))
+        
+    def invalidMethod(self):
+        return Response(status=400, message="Invalid operation. Please, insert a valid operation.")

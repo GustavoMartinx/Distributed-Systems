@@ -28,6 +28,8 @@ class Server:
             return self.movieController.delete(request)
         if request.method == "UPDATE":
             return self.movieController.update(request)
+        if request.method == "EMPTY":
+            return self.movieController.invalidMethod()
         
     def handle_client(self, client_socket):
         try:
