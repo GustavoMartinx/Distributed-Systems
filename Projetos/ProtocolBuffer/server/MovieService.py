@@ -26,6 +26,9 @@ class MovieService:
         print("[Movie Service] Executing method retrieve()")
         movie_retrieved = self.database.find(movie)
 
+        if movie_retrieved == None:
+            return None
+
         movie_retrieved['id'] = str(movie_retrieved.pop('_id'))
         movie_retrieved_response = ParseDict(movie_retrieved, Movie())
 
@@ -44,12 +47,12 @@ class MovieService:
         movies_list = []
         for movie in movies:
             new_movie = Movie()
-            new_movie.id = str(movie["_id"])
-            new_movie.title = movie["title"]
-            new_movie.genres.extend(list(movie["genres"]))
-            new_movie.cast.extend(list(movie["cast"]))
-            new_movie.directors.extend(list(movie["directors"]))
-            # new_movie.plot = movie["plot"]
+            new_movie.id = str(movie.get("_id", "N/A"))
+            new_movie.title = movie.get("title", "N/A")
+            new_movie.genres.extend(list(movie.get("genres", [])))
+            new_movie.cast.extend(list(movie.get("cast", [])))
+            new_movie.directors.extend(list(movie.get("directors", [])))
+            new_movie.plot = movie.get("plot", "N/A")
             # new_movie.runtime = movie["runtime"]
             # new_movie.num_mflix_comments = movie["num_mflix_comments"]
             # new_movie.fullplot = movie["fullplot"]
@@ -60,7 +63,7 @@ class MovieService:
             # new_movie.countries.extend(list(movie["countries"]))
             # new_movie.type = movie["type"]
             movies_list.append(new_movie)
-        
+
         return movies_list
         
     def findByAtor(self, values):
@@ -70,12 +73,12 @@ class MovieService:
         movies_list = []
         for movie in movies:
             new_movie = Movie()
-            new_movie.id = str(movie.get("_id"))
-            new_movie.title = movie.get("title")
+            new_movie.id = str(movie.get("_id", "N/A"))
+            new_movie.title = movie.get("title", "N/A")
             new_movie.genres.extend(list(movie.get("genres", [])))
             new_movie.cast.extend(list(movie.get("cast", [])))
             new_movie.directors.extend(list(movie.get("directors", [])))
-            new_movie.plot = movie.get("plot")
+            new_movie.plot = movie.get("plot", "N/A")
             # new_movie.runtime = movie.get("runtime")
             # new_movie.num_mflix_comments = movie.get("num_mflix_comments")
             # new_movie.fullplot = movie.get("fullplot")

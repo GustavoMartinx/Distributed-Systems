@@ -18,6 +18,8 @@ class MovieController:
         try:
             print("[Movie Controller] Executing method retrieve()")
             movie_retrieved = self.movieService.retrieve(request.movie)
+            if movie_retrieved == None:
+                return Response(status= 200, message="There are no movies with this ID.")
             return Response(status=200, message="Movie retrieved successfully!", movie=movie_retrieved)
         except Exception as e:
             print(f"[Error] Failed on retrieve movie: {e}")
@@ -40,6 +42,9 @@ class MovieController:
         try:
             print("[Movie Controller] Executing method findByCategories()")
             movies_array = self.movieService.findByCategories(request.filters.values)
+            # Verificando se a lista filtrada é vazia
+            if not movies_array:
+                return Response(status=200, message="Successfully on find movie by genres! But there are no movies with this gender.")
             return Response(status=200, message="Successfully on find movie by genres!", movies=movies_array)
         except Exception as e:
             print(f"[Error] Failed on find movie by categories {e}")
@@ -49,6 +54,9 @@ class MovieController:
         try:
             print("[Movie Controller] Executing method findByAtor()")
             movies_array = self.movieService.findByAtor(request.filters.values)
+            # Verificando se a lista filtrada é vazia
+            if not movies_array:
+                return Response(status=200, message="Successfully on find movie by cast! But there are no movies with this cast.")
             return Response(status=200, message="Successfully on find movie by cast!", movies=movies_array)
         except Exception as e:
             print(f"[Error] Failed on find movie by actors {e}")
