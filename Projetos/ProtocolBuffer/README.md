@@ -161,3 +161,5 @@ Ou, se preferir, execute o servidor de forma automatizada:
 cd server/
 ./run.sh
 ```
+
+Obs.: Lembre-se de alterar sua `uri` do MongoDB no arquivo `Database.py`.
