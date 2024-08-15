@@ -11,7 +11,6 @@ import com.google.protobuf.InvalidProtocolBufferException;
 public class Main {
 
     public static String conversor(int op) {
-
         switch (op) {
             case 1:
                 return Methods.create;
@@ -112,15 +111,29 @@ public class Main {
                 break;
 
             case 5: // FIND BY CAST
-                System.out.println("Digite o nome de um membro do elenco:");
-                cast = reader.nextLine();
-                movieFilterBuilder.addValues(cast);
+                System.out.println("Digite os nomes dos membros do elenco (separados por vírgula):");
+                String castInput = reader.nextLine();
+
+                // Regex que lida com ", " ou ","
+                String[] castArray = castInput.split(",\\s*");
+                
+                // Iterando sobre cada substring e passando-a para o método addValues
+                for (String castItem : castArray) {
+                    movieFilterBuilder.addValues(castItem.trim());
+                }
                 break;
 
             case 6: // FIND BY GENRES
                 System.out.println("Digite o gênero do filme:");
-                genre = reader.nextLine();
-                movieFilterBuilder.addValues(genre);
+                String genreInput = reader.nextLine();
+                
+                // Regex que lida com ", " ou ","
+                String[] genreArray = genreInput.split(",\\s*");
+                
+                // Iterando sobre cada substring e passando-a para o método addValues
+                for (String genreItem : genreArray) {
+                    movieFilterBuilder.addValues(genreItem.trim());
+                }
                 break;
         }
     }
