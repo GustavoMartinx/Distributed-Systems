@@ -1,2 +1,2 @@
-rm -rf server/*.class
-rm -rf client/__pycache__
+rm -rf **/*.class
+rm -rf **/__pycache__
