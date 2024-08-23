@@ -53,10 +53,10 @@ public class Main {
                 System.out.println("Digite o nome do filme:");
                 movieName = reader.nextLine();
                 movieBuilder.setTitle(movieName);
-
                 System.out.println("Digite os diretores do filme:");
                 directors = reader.nextLine();
                 movieBuilder.addDirectors(directors);
+            
 
                 System.out.println("Digite o gênero do filme:");
                 genre = reader.nextLine();
@@ -70,6 +70,8 @@ public class Main {
                 plot = reader.nextLine();
                 movieBuilder.setPlot(plot);
 
+                Movies.Movie movie = movieBuilder.build();
+                Response response = stub.createMovie(movie);
                 break;
 
             case 2: // READ
@@ -145,7 +147,6 @@ public class Main {
         String currentMethod = Methods.empty;
         Movies.Movie.Builder movieBuilder;
         Movies.MovieFilters.Builder movieFilterBuilder;
-
         Socket socket;
         OutputStream outputStream;
         DataOutputStream dataOutputStream;
