@@ -76,14 +76,38 @@ public class MovieClient {
             case 2: // READ
                 System.out.println("Digite o ID do filme:");
                 movieName = reader.nextLine();
-                
-                    client.getMovie(movieName);
-                 
+
+                client.getMovie(movieName);
+
                 break;
             case 3: // DELETE
                 System.out.println("Digite o nome do filme:");
                 movieID = reader.nextLine();
                 deleteMovie(movieID);
+                break;
+
+            case 4: // UPDATE
+            movieBuilder = MoviesRPC.Movie.newBuilder();
+                System.out.println("Digite o nome do filme:");
+                movieName = reader.nextLine();
+                movieBuilder.setTitle(movieName);
+
+                System.out.println("Digite os diretores do filme:");
+                directors = reader.nextLine();
+                movieBuilder.addDirectors(directors);
+
+                System.out.println("Digite o gênero do filme:");
+                genre = reader.nextLine();
+                movieBuilder.addGenres(genre);
+
+                System.out.println("Digite o nome de um membro do elenco:");
+                cast = reader.nextLine();
+                movieBuilder.addCast(cast);
+
+                System.out.println("Digite a sinopse do filme:");
+                plot = reader.nextLine();
+                movieBuilder.setPlot(plot);
+                updateMovie(movieID, movieBuilder); 
                 break;
         }
     }
@@ -128,6 +152,27 @@ public class MovieClient {
                 System.out.println("Movie deleted successfully: " + movieName);
             } else {
                 System.out.println("Failed to delete movie.");
+            }
+        } catch (RuntimeException e) {
+            System.out.println("RPC failed: " + e.getMessage());
+        }
+    }
+
+    public static void updateMovie(String movieName, MoviesRPC.Movie.Builder updatedMovie) {
+       /*  MoviesRPC.UpdateMovieRequest request = MoviesRPC.UpdateMovieRequest.newBuilder()
+                .setMovieName(movieName)
+                .setUpdatedMovie(updatedMovie)
+                .build();*/
+
+        MoviesRPC.Response response;
+
+        try {
+            // Call the updateMovie RPC method
+            response = blockingStub.updateMovie(updatedMovie.build());
+            if (response.getStatus() == 200) {
+                System.out.println("Movie updated successfully: " + movieName);
+            } else {
+                System.out.println("Failed to update movie.");
             }
         } catch (RuntimeException e) {
             System.out.println("RPC failed: " + e.getMessage());
