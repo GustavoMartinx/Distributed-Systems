@@ -1,10 +1,11 @@
 import grpc
+import pprint
 from concurrent import futures
 import MoviesRPC_pb2
 import MoviesRPC_pb2_grpc
 
 # In-memory database for demonstration purposes
-movies_db = {
+movies_db = {1:{
             "id": "1",
             "plot": "A thief who steals corporate secrets through the use of dream-sharing technology is given the inverse task of planting an idea into the mind of a C.E.O.",
             "genres": ["Action", "Sci-Fi", "Thriller"],
@@ -20,68 +21,75 @@ movies_db = {
             "year": 2010,
             "countries": ["USA", "UK"],
             "type": "movie"
-        }
+        }}
 
 class MovieMethodsServicer(MoviesRPC_pb2_grpc.MovieMethodsServicer):
     # Create
     def CreateMovie(self, request, context):
-        movie_id = request.id
+        print(request)
+        movie_id = request.title
         if movie_id in movies_db:
-            return MoviesRPC_pb2.Response(status=409, message="Movie already exists.")
+            return MoviesRPC_pb2.Response(status=404, message="Movie already exists.")
         
-        movies_db[movie_id] = request
+        movies_db[max(movies_db.keys()) + 1] = {
+            'id': str(max(movies_db.keys()) + 1),
+            'title': request.title if request.title else "Mock Title",
+            'directors': request.directors if request.directors else ["Mock Director 1", "Mock Director 2"],
+            'genres': request.genres if request.genres else ["Mock Genre 1", "Mock Genre 2"],
+            'cast': request.cast if request.cast else ["Mock Actor 1", "Mock Actor 2"],
+            'plot': request.plot if request.plot else "This is a mock plot for the movie.",
+            'runtime': 120,  # Mock data
+            'num_mflix_comments': 100,  # Mock data
+            'fullplot': "This is a mock full plot for the movie.",  # Mock data
+            'languages': ["English"],  # Mock data
+            'rated': "PG-13",  # Mock data
+            'lastupdated': "2024-08-23 00:00:00",  # Mock data
+            'year': 2023,  # Mock data
+            'countries': ["USA"],  # Mock data
+            'type': "movie"  # Mock data
+        }
         print(movie_id)
-        return MoviesRPC_pb2.Response(status=201, message="Movie created successfully.", movie=request)
+        pprint.pprint(movies_db)
+        return MoviesRPC_pb2.Response(status=200, message="Movie created successfully.", movie=request)
 
     # Retrieve by ID or Name
-
     def GetMovie(self, request, context):
-        # Mock movie data in a dictionary
-        mock_movie_dict = {
-            "id": "1",
-            "plot": "A thief who steals corporate secrets through the use of dream-sharing technology is given the inverse task of planting an idea into the mind of a C.E.O.",
-            "genres": ["Action", "Sci-Fi", "Thriller"],
-            "runtime": 148,
-            "cast": ["Leonardo DiCaprio", "Joseph Gordon-Levitt", "Elliot Page"],
-            "num_mflix_comments": 1500,
-            "title": "Inception",
-            "fullplot": "Dom Cobb is a skilled thief, the absolute best in the dangerous art of extraction: stealing valuable secrets from deep within the subconscious during the dream state, when the mind is at its most vulnerable.",
-            "languages": ["English", "Japanese", "French"],
-            "directors": ["Christopher Nolan"],
-            "rated": "PG-13",
-            "lastupdated": "2024-08-23 00:00:00",
-            "year": 2010,
-            "countries": ["USA", "UK"],
-            "type": "movie"
-        }
 
-        # Convert the dictionary to a Movie object
-        mock_movie = MoviesRPC_pb2.Movie(
-            id=mock_movie_dict["id"],
-            plot=mock_movie_dict["plot"],
-            genres=mock_movie_dict["genres"],
-            runtime=mock_movie_dict["runtime"],
-            cast=mock_movie_dict["cast"],
-            num_mflix_comments=mock_movie_dict["num_mflix_comments"],
-            title=mock_movie_dict["title"],
-            fullplot=mock_movie_dict["fullplot"],
-            languages=mock_movie_dict["languages"],
-            directors=mock_movie_dict["directors"],
-            rated=mock_movie_dict["rated"],
-            lastupdated=mock_movie_dict["lastupdated"],
-            year=mock_movie_dict["year"],
-            countries=mock_movie_dict["countries"],
-            type=mock_movie_dict["type"]
+        print("teste")
+        print(request)
+        mock_movie = ""
+        pprint.pprint(movies_db)
+        for movie in movies_db.values():
+            pprint.pprint(movie)
+            if movie["id"] == request.nameMovie or movie["title"] == request.nameMovie:
+                print("true")
+                mock_movie = MoviesRPC_pb2.Movie(
+                id=movie["id"],
+                plot=movie["plot"],
+                genres=movie["genres"],
+                runtime=movie["runtime"],
+                cast=movie["cast"],
+                num_mflix_comments=movie["num_mflix_comments"],
+                title=movie["title"],
+                fullplot=movie["fullplot"],
+                languages=movie["languages"],
+                directors=movie["directors"],
+                rated=movie["rated"],
+                lastupdated=movie["lastupdated"],
+                year=movie["year"],
+                countries=movie["countries"],
+                type=movie["type"]
         )
 
-        # Create a response object
-        response = MoviesRPC_pb2.Response(
-            status=1,
-            message="Movie found",
-            movie=mock_movie
-        )
+                # Create a response object
+                response = MoviesRPC_pb2.Response(
+                    status=200,
+                    message="Movie found",
+                    movie=mock_movie
+                )
 
-        return response
+                return response
+        return MoviesRPC_pb2.Response(status=404, message="Movie not found.")
 
     # Retrieve by Actor
     def GetMoviesByActor(self, request, context):
@@ -106,11 +114,12 @@ class MovieMethodsServicer(MoviesRPC_pb2_grpc.MovieMethodsServicer):
 
     # Delete
     def DeleteMovie(self, request, context):
-        movie_id = request.name
+        movie_id = request.title
         if movie_id not in movies_db:
             return MoviesRPC_pb2.Response(status=404, message="Movie not found.")
         
         del movies_db[movie_id]
+        pprint.pprint(movies_db)
         return MoviesRPC_pb2.Response(status=200, message="Movie deleted successfully.")
 
 def serve():
