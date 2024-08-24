@@ -7,3 +7,6 @@ coloca o plugin no mesmo lugar do protoc, ou faz os esquemas de configurar PATH,
 ai usa o comando : protoc --java_out=<DESTINO> --grpc-java_out=<DESTINO> --plugin=protoc-gen-grpc-java=<CAMINHO DO PLUGIN GRPC> MoviesRPC.proto
 
 pro python é só instalar as dependencias e fazer igual ta nos slides
+
+para rodar o java usa mvn clean compile exec:java (executa e compila)
+ou mvn exec:java -D"exec.mainClass"="MovieClient" (só executa)

@@ -1,3 +1,4 @@
+package src.main.java;
 public class Methods
 {
     final static public String create = "CREATE";

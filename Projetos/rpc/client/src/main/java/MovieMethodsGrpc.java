@@ -1,4 +1,17 @@
 import static io.grpc.MethodDescriptor.generateFullMethodName;
+import static io.grpc.stub.ClientCalls.asyncBidiStreamingCall;
+import static io.grpc.stub.ClientCalls.asyncClientStreamingCall;
+import static io.grpc.stub.ClientCalls.asyncServerStreamingCall;
+import static io.grpc.stub.ClientCalls.asyncUnaryCall;
+import static io.grpc.stub.ClientCalls.blockingServerStreamingCall;
+import static io.grpc.stub.ClientCalls.blockingUnaryCall;
+import static io.grpc.stub.ClientCalls.futureUnaryCall;
+import static io.grpc.stub.ServerCalls.asyncBidiStreamingCall;
+import static io.grpc.stub.ServerCalls.asyncClientStreamingCall;
+import static io.grpc.stub.ServerCalls.asyncServerStreamingCall;
+import static io.grpc.stub.ServerCalls.asyncUnaryCall;
+import static io.grpc.stub.ServerCalls.asyncUnimplementedStreamingCall;
+import static io.grpc.stub.ServerCalls.asyncUnimplementedUnaryCall;
 
 /**
  * <pre>
@@ -6,14 +19,13 @@ import static io.grpc.MethodDescriptor.generateFullMethodName;
  * </pre>
  */
 @javax.annotation.Generated(
-    value = "by gRPC proto compiler (version 1.62.2)",
+    value = "by gRPC proto compiler (version 1.23.0)",
     comments = "Source: MoviesRPC.proto")
-@io.grpc.stub.annotations.GrpcGenerated
 public final class MovieMethodsGrpc {
 
   private MovieMethodsGrpc() {}
 
-  public static final java.lang.String SERVICE_NAME = "MovieMethods";
+  public static final String SERVICE_NAME = "MovieMethods";
 
   // Static method descriptors that strictly reflect the proto.
   private static volatile io.grpc.MethodDescriptor<MoviesRPC.Movie,
@@ -206,14 +218,7 @@ public final class MovieMethodsGrpc {
    * Creates a new async stub that supports all call types for the service
    */
   public static MovieMethodsStub newStub(io.grpc.Channel channel) {
-    io.grpc.stub.AbstractStub.StubFactory<MovieMethodsStub> factory =
-      new io.grpc.stub.AbstractStub.StubFactory<MovieMethodsStub>() {
-        @java.lang.Override
-        public MovieMethodsStub newStub(io.grpc.Channel channel, io.grpc.CallOptions callOptions) {
-          return new MovieMethodsStub(channel, callOptions);
-        }
-      };
-    return MovieMethodsStub.newStub(factory, channel);
+    return new MovieMethodsStub(channel);
   }
 
   /**
@@ -221,14 +226,7 @@ public final class MovieMethodsGrpc {
    */
   public static MovieMethodsBlockingStub newBlockingStub(
       io.grpc.Channel channel) {
-    io.grpc.stub.AbstractStub.StubFactory<MovieMethodsBlockingStub> factory =
-      new io.grpc.stub.AbstractStub.StubFactory<MovieMethodsBlockingStub>() {
-        @java.lang.Override
-        public MovieMethodsBlockingStub newStub(io.grpc.Channel channel, io.grpc.CallOptions callOptions) {
-          return new MovieMethodsBlockingStub(channel, callOptions);
-        }
-      };
-    return MovieMethodsBlockingStub.newStub(factory, channel);
+    return new MovieMethodsBlockingStub(channel);
   }
 
   /**
@@ -236,14 +234,7 @@ public final class MovieMethodsGrpc {
    */
   public static MovieMethodsFutureStub newFutureStub(
       io.grpc.Channel channel) {
-    io.grpc.stub.AbstractStub.StubFactory<MovieMethodsFutureStub> factory =
-      new io.grpc.stub.AbstractStub.StubFactory<MovieMethodsFutureStub>() {
-        @java.lang.Override
-        public MovieMethodsFutureStub newStub(io.grpc.Channel channel, io.grpc.CallOptions callOptions) {
-          return new MovieMethodsFutureStub(channel, callOptions);
-        }
-      };
-    return MovieMethodsFutureStub.newStub(factory, channel);
+    return new MovieMethodsFutureStub(channel);
   }
 
   /**
@@ -251,16 +242,16 @@ public final class MovieMethodsGrpc {
    * Serviço que define os métodos para operações de CRUD e buscas
    * </pre>
    */
-  public interface AsyncService {
+  public static abstract class MovieMethodsImplBase implements io.grpc.BindableService {
 
     /**
      * <pre>
      * Create
      * </pre>
      */
-    default void createMovie(MoviesRPC.Movie request,
+    public void createMovie(MoviesRPC.Movie request,
         io.grpc.stub.StreamObserver<MoviesRPC.Response> responseObserver) {
-      io.grpc.stub.ServerCalls.asyncUnimplementedUnaryCall(getCreateMovieMethod(), responseObserver);
+      asyncUnimplementedUnaryCall(getCreateMovieMethod(), responseObserver);
     }
 
     /**
@@ -268,9 +259,9 @@ public final class MovieMethodsGrpc {
      * Retrieve (by ID or Name)
      * </pre>
      */
-    default void getMovie(MoviesRPC.MovieName request,
+    public void getMovie(MoviesRPC.MovieName request,
         io.grpc.stub.StreamObserver<MoviesRPC.Response> responseObserver) {
-      io.grpc.stub.ServerCalls.asyncUnimplementedUnaryCall(getGetMovieMethod(), responseObserver);
+      asyncUnimplementedUnaryCall(getGetMovieMethod(), responseObserver);
     }
 
     /**
@@ -278,9 +269,9 @@ public final class MovieMethodsGrpc {
      * Retrieve by Actor
      * </pre>
      */
-    default void getMoviesByActor(MoviesRPC.MovieFilters request,
+    public void getMoviesByActor(MoviesRPC.MovieFilters request,
         io.grpc.stub.StreamObserver<MoviesRPC.Response> responseObserver) {
-      io.grpc.stub.ServerCalls.asyncUnimplementedUnaryCall(getGetMoviesByActorMethod(), responseObserver);
+      asyncUnimplementedUnaryCall(getGetMoviesByActorMethod(), responseObserver);
     }
 
     /**
@@ -288,9 +279,9 @@ public final class MovieMethodsGrpc {
      * Retrieve by Category (Genre)
      * </pre>
      */
-    default void getMoviesByCategory(MoviesRPC.MovieFilters request,
+    public void getMoviesByCategory(MoviesRPC.MovieFilters request,
         io.grpc.stub.StreamObserver<MoviesRPC.Response> responseObserver) {
-      io.grpc.stub.ServerCalls.asyncUnimplementedUnaryCall(getGetMoviesByCategoryMethod(), responseObserver);
+      asyncUnimplementedUnaryCall(getGetMoviesByCategoryMethod(), responseObserver);
     }
 
     /**
@@ -298,9 +289,9 @@ public final class MovieMethodsGrpc {
      * Update
      * </pre>
      */
-    default void updateMovie(MoviesRPC.Movie request,
+    public void updateMovie(MoviesRPC.Movie request,
         io.grpc.stub.StreamObserver<MoviesRPC.Response> responseObserver) {
-      io.grpc.stub.ServerCalls.asyncUnimplementedUnaryCall(getUpdateMovieMethod(), responseObserver);
+      asyncUnimplementedUnaryCall(getUpdateMovieMethod(), responseObserver);
     }
 
     /**
@@ -308,42 +299,77 @@ public final class MovieMethodsGrpc {
      * Delete
      * </pre>
      */
-    default void deleteMovie(MoviesRPC.MovieName request,
+    public void deleteMovie(MoviesRPC.MovieName request,
         io.grpc.stub.StreamObserver<MoviesRPC.Response> responseObserver) {
-      io.grpc.stub.ServerCalls.asyncUnimplementedUnaryCall(getDeleteMovieMethod(), responseObserver);
+      asyncUnimplementedUnaryCall(getDeleteMovieMethod(), responseObserver);
     }
-  }
-
-  /**
-   * Base class for the server implementation of the service MovieMethods.
-   * <pre>
-   * Serviço que define os métodos para operações de CRUD e buscas
-   * </pre>
-   */
-  public static abstract class MovieMethodsImplBase
-      implements io.grpc.BindableService, AsyncService {
 
     @java.lang.Override public final io.grpc.ServerServiceDefinition bindService() {
-      return MovieMethodsGrpc.bindService(this);
+      return io.grpc.ServerServiceDefinition.builder(getServiceDescriptor())
+          .addMethod(
+            getCreateMovieMethod(),
+            asyncUnaryCall(
+              new MethodHandlers<
+                MoviesRPC.Movie,
+                MoviesRPC.Response>(
+                  this, METHODID_CREATE_MOVIE)))
+          .addMethod(
+            getGetMovieMethod(),
+            asyncUnaryCall(
+              new MethodHandlers<
+                MoviesRPC.MovieName,
+                MoviesRPC.Response>(
+                  this, METHODID_GET_MOVIE)))
+          .addMethod(
+            getGetMoviesByActorMethod(),
+            asyncUnaryCall(
+              new MethodHandlers<
+                MoviesRPC.MovieFilters,
+                MoviesRPC.Response>(
+                  this, METHODID_GET_MOVIES_BY_ACTOR)))
+          .addMethod(
+            getGetMoviesByCategoryMethod(),
+            asyncUnaryCall(
+              new MethodHandlers<
+                MoviesRPC.MovieFilters,
+                MoviesRPC.Response>(
+                  this, METHODID_GET_MOVIES_BY_CATEGORY)))
+          .addMethod(
+            getUpdateMovieMethod(),
+            asyncUnaryCall(
+              new MethodHandlers<
+                MoviesRPC.Movie,
+                MoviesRPC.Response>(
+                  this, METHODID_UPDATE_MOVIE)))
+          .addMethod(
+            getDeleteMovieMethod(),
+            asyncUnaryCall(
+              new MethodHandlers<
+                MoviesRPC.MovieName,
+                MoviesRPC.Response>(
+                  this, METHODID_DELETE_MOVIE)))
+          .build();
     }
   }
 
   /**
-   * A stub to allow clients to do asynchronous rpc calls to service MovieMethods.
    * <pre>
    * Serviço que define os métodos para operações de CRUD e buscas
    * </pre>
    */
-  public static final class MovieMethodsStub
-      extends io.grpc.stub.AbstractAsyncStub<MovieMethodsStub> {
-    private MovieMethodsStub(
-        io.grpc.Channel channel, io.grpc.CallOptions callOptions) {
+  public static final class MovieMethodsStub extends io.grpc.stub.AbstractStub<MovieMethodsStub> {
+    private MovieMethodsStub(io.grpc.Channel channel) {
+      super(channel);
+    }
+
+    private MovieMethodsStub(io.grpc.Channel channel,
+        io.grpc.CallOptions callOptions) {
       super(channel, callOptions);
     }
 
     @java.lang.Override
-    protected MovieMethodsStub build(
-        io.grpc.Channel channel, io.grpc.CallOptions callOptions) {
+    protected MovieMethodsStub build(io.grpc.Channel channel,
+        io.grpc.CallOptions callOptions) {
       return new MovieMethodsStub(channel, callOptions);
     }
 
@@ -354,7 +380,7 @@ public final class MovieMethodsGrpc {
      */
     public void createMovie(MoviesRPC.Movie request,
         io.grpc.stub.StreamObserver<MoviesRPC.Response> responseObserver) {
-      io.grpc.stub.ClientCalls.asyncUnaryCall(
+      asyncUnaryCall(
           getChannel().newCall(getCreateMovieMethod(), getCallOptions()), request, responseObserver);
     }
 
@@ -365,7 +391,7 @@ public final class MovieMethodsGrpc {
      */
     public void getMovie(MoviesRPC.MovieName request,
         io.grpc.stub.StreamObserver<MoviesRPC.Response> responseObserver) {
-      io.grpc.stub.ClientCalls.asyncUnaryCall(
+      asyncUnaryCall(
           getChannel().newCall(getGetMovieMethod(), getCallOptions()), request, responseObserver);
     }
 
@@ -376,7 +402,7 @@ public final class MovieMethodsGrpc {
      */
     public void getMoviesByActor(MoviesRPC.MovieFilters request,
         io.grpc.stub.StreamObserver<MoviesRPC.Response> responseObserver) {
-      io.grpc.stub.ClientCalls.asyncUnaryCall(
+      asyncUnaryCall(
           getChannel().newCall(getGetMoviesByActorMethod(), getCallOptions()), request, responseObserver);
     }
 
@@ -387,7 +413,7 @@ public final class MovieMethodsGrpc {
      */
     public void getMoviesByCategory(MoviesRPC.MovieFilters request,
         io.grpc.stub.StreamObserver<MoviesRPC.Response> responseObserver) {
-      io.grpc.stub.ClientCalls.asyncUnaryCall(
+      asyncUnaryCall(
           getChannel().newCall(getGetMoviesByCategoryMethod(), getCallOptions()), request, responseObserver);
     }
 
@@ -398,7 +424,7 @@ public final class MovieMethodsGrpc {
      */
     public void updateMovie(MoviesRPC.Movie request,
         io.grpc.stub.StreamObserver<MoviesRPC.Response> responseObserver) {
-      io.grpc.stub.ClientCalls.asyncUnaryCall(
+      asyncUnaryCall(
           getChannel().newCall(getUpdateMovieMethod(), getCallOptions()), request, responseObserver);
     }
 
@@ -409,27 +435,29 @@ public final class MovieMethodsGrpc {
      */
     public void deleteMovie(MoviesRPC.MovieName request,
         io.grpc.stub.StreamObserver<MoviesRPC.Response> responseObserver) {
-      io.grpc.stub.ClientCalls.asyncUnaryCall(
+      asyncUnaryCall(
           getChannel().newCall(getDeleteMovieMethod(), getCallOptions()), request, responseObserver);
     }
   }
 
   /**
-   * A stub to allow clients to do synchronous rpc calls to service MovieMethods.
    * <pre>
    * Serviço que define os métodos para operações de CRUD e buscas
    * </pre>
    */
-  public static final class MovieMethodsBlockingStub
-      extends io.grpc.stub.AbstractBlockingStub<MovieMethodsBlockingStub> {
-    private MovieMethodsBlockingStub(
-        io.grpc.Channel channel, io.grpc.CallOptions callOptions) {
+  public static final class MovieMethodsBlockingStub extends io.grpc.stub.AbstractStub<MovieMethodsBlockingStub> {
+    private MovieMethodsBlockingStub(io.grpc.Channel channel) {
+      super(channel);
+    }
+
+    private MovieMethodsBlockingStub(io.grpc.Channel channel,
+        io.grpc.CallOptions callOptions) {
       super(channel, callOptions);
     }
 
     @java.lang.Override
-    protected MovieMethodsBlockingStub build(
-        io.grpc.Channel channel, io.grpc.CallOptions callOptions) {
+    protected MovieMethodsBlockingStub build(io.grpc.Channel channel,
+        io.grpc.CallOptions callOptions) {
       return new MovieMethodsBlockingStub(channel, callOptions);
     }
 
@@ -439,7 +467,7 @@ public final class MovieMethodsGrpc {
      * </pre>
      */
     public MoviesRPC.Response createMovie(MoviesRPC.Movie request) {
-      return io.grpc.stub.ClientCalls.blockingUnaryCall(
+      return blockingUnaryCall(
           getChannel(), getCreateMovieMethod(), getCallOptions(), request);
     }
 
@@ -449,7 +477,7 @@ public final class MovieMethodsGrpc {
      * </pre>
      */
     public MoviesRPC.Response getMovie(MoviesRPC.MovieName request) {
-      return io.grpc.stub.ClientCalls.blockingUnaryCall(
+      return blockingUnaryCall(
           getChannel(), getGetMovieMethod(), getCallOptions(), request);
     }
 
@@ -459,7 +487,7 @@ public final class MovieMethodsGrpc {
      * </pre>
      */
     public MoviesRPC.Response getMoviesByActor(MoviesRPC.MovieFilters request) {
-      return io.grpc.stub.ClientCalls.blockingUnaryCall(
+      return blockingUnaryCall(
           getChannel(), getGetMoviesByActorMethod(), getCallOptions(), request);
     }
 
@@ -469,7 +497,7 @@ public final class MovieMethodsGrpc {
      * </pre>
      */
     public MoviesRPC.Response getMoviesByCategory(MoviesRPC.MovieFilters request) {
-      return io.grpc.stub.ClientCalls.blockingUnaryCall(
+      return blockingUnaryCall(
           getChannel(), getGetMoviesByCategoryMethod(), getCallOptions(), request);
     }
 
@@ -479,7 +507,7 @@ public final class MovieMethodsGrpc {
      * </pre>
      */
     public MoviesRPC.Response updateMovie(MoviesRPC.Movie request) {
-      return io.grpc.stub.ClientCalls.blockingUnaryCall(
+      return blockingUnaryCall(
           getChannel(), getUpdateMovieMethod(), getCallOptions(), request);
     }
 
@@ -489,27 +517,29 @@ public final class MovieMethodsGrpc {
      * </pre>
      */
     public MoviesRPC.Response deleteMovie(MoviesRPC.MovieName request) {
-      return io.grpc.stub.ClientCalls.blockingUnaryCall(
+      return blockingUnaryCall(
           getChannel(), getDeleteMovieMethod(), getCallOptions(), request);
     }
   }
 
   /**
-   * A stub to allow clients to do ListenableFuture-style rpc calls to service MovieMethods.
    * <pre>
    * Serviço que define os métodos para operações de CRUD e buscas
    * </pre>
    */
-  public static final class MovieMethodsFutureStub
-      extends io.grpc.stub.AbstractFutureStub<MovieMethodsFutureStub> {
-    private MovieMethodsFutureStub(
-        io.grpc.Channel channel, io.grpc.CallOptions callOptions) {
+  public static final class MovieMethodsFutureStub extends io.grpc.stub.AbstractStub<MovieMethodsFutureStub> {
+    private MovieMethodsFutureStub(io.grpc.Channel channel) {
+      super(channel);
+    }
+
+    private MovieMethodsFutureStub(io.grpc.Channel channel,
+        io.grpc.CallOptions callOptions) {
       super(channel, callOptions);
     }
 
     @java.lang.Override
-    protected MovieMethodsFutureStub build(
-        io.grpc.Channel channel, io.grpc.CallOptions callOptions) {
+    protected MovieMethodsFutureStub build(io.grpc.Channel channel,
+        io.grpc.CallOptions callOptions) {
       return new MovieMethodsFutureStub(channel, callOptions);
     }
 
@@ -520,7 +550,7 @@ public final class MovieMethodsGrpc {
      */
     public com.google.common.util.concurrent.ListenableFuture<MoviesRPC.Response> createMovie(
         MoviesRPC.Movie request) {
-      return io.grpc.stub.ClientCalls.futureUnaryCall(
+      return futureUnaryCall(
           getChannel().newCall(getCreateMovieMethod(), getCallOptions()), request);
     }
 
@@ -531,7 +561,7 @@ public final class MovieMethodsGrpc {
      */
     public com.google.common.util.concurrent.ListenableFuture<MoviesRPC.Response> getMovie(
         MoviesRPC.MovieName request) {
-      return io.grpc.stub.ClientCalls.futureUnaryCall(
+      return futureUnaryCall(
           getChannel().newCall(getGetMovieMethod(), getCallOptions()), request);
     }
 
@@ -542,7 +572,7 @@ public final class MovieMethodsGrpc {
      */
     public com.google.common.util.concurrent.ListenableFuture<MoviesRPC.Response> getMoviesByActor(
         MoviesRPC.MovieFilters request) {
-      return io.grpc.stub.ClientCalls.futureUnaryCall(
+      return futureUnaryCall(
           getChannel().newCall(getGetMoviesByActorMethod(), getCallOptions()), request);
     }
 
@@ -553,7 +583,7 @@ public final class MovieMethodsGrpc {
      */
     public com.google.common.util.concurrent.ListenableFuture<MoviesRPC.Response> getMoviesByCategory(
         MoviesRPC.MovieFilters request) {
-      return io.grpc.stub.ClientCalls.futureUnaryCall(
+      return futureUnaryCall(
           getChannel().newCall(getGetMoviesByCategoryMethod(), getCallOptions()), request);
     }
 
@@ -564,7 +594,7 @@ public final class MovieMethodsGrpc {
      */
     public com.google.common.util.concurrent.ListenableFuture<MoviesRPC.Response> updateMovie(
         MoviesRPC.Movie request) {
-      return io.grpc.stub.ClientCalls.futureUnaryCall(
+      return futureUnaryCall(
           getChannel().newCall(getUpdateMovieMethod(), getCallOptions()), request);
     }
 
@@ -575,7 +605,7 @@ public final class MovieMethodsGrpc {
      */
     public com.google.common.util.concurrent.ListenableFuture<MoviesRPC.Response> deleteMovie(
         MoviesRPC.MovieName request) {
-      return io.grpc.stub.ClientCalls.futureUnaryCall(
+      return futureUnaryCall(
           getChannel().newCall(getDeleteMovieMethod(), getCallOptions()), request);
     }
   }
@@ -592,10 +622,10 @@ public final class MovieMethodsGrpc {
       io.grpc.stub.ServerCalls.ServerStreamingMethod<Req, Resp>,
       io.grpc.stub.ServerCalls.ClientStreamingMethod<Req, Resp>,
       io.grpc.stub.ServerCalls.BidiStreamingMethod<Req, Resp> {
-    private final AsyncService serviceImpl;
+    private final MovieMethodsImplBase serviceImpl;
     private final int methodId;
 
-    MethodHandlers(AsyncService serviceImpl, int methodId) {
+    MethodHandlers(MovieMethodsImplBase serviceImpl, int methodId) {
       this.serviceImpl = serviceImpl;
       this.methodId = methodId;
     }
@@ -644,53 +674,6 @@ public final class MovieMethodsGrpc {
     }
   }
 
-  public static final io.grpc.ServerServiceDefinition bindService(AsyncService service) {
-    return io.grpc.ServerServiceDefinition.builder(getServiceDescriptor())
-        .addMethod(
-          getCreateMovieMethod(),
-          io.grpc.stub.ServerCalls.asyncUnaryCall(
-            new MethodHandlers<
-              MoviesRPC.Movie,
-              MoviesRPC.Response>(
-                service, METHODID_CREATE_MOVIE)))
-        .addMethod(
-          getGetMovieMethod(),
-          io.grpc.stub.ServerCalls.asyncUnaryCall(
-            new MethodHandlers<
-              MoviesRPC.MovieName,
-              MoviesRPC.Response>(
-                service, METHODID_GET_MOVIE)))
-        .addMethod(
-          getGetMoviesByActorMethod(),
-          io.grpc.stub.ServerCalls.asyncUnaryCall(
-            new MethodHandlers<
-              MoviesRPC.MovieFilters,
-              MoviesRPC.Response>(
-                service, METHODID_GET_MOVIES_BY_ACTOR)))
-        .addMethod(
-          getGetMoviesByCategoryMethod(),
-          io.grpc.stub.ServerCalls.asyncUnaryCall(
-            new MethodHandlers<
-              MoviesRPC.MovieFilters,
-              MoviesRPC.Response>(
-                service, METHODID_GET_MOVIES_BY_CATEGORY)))
-        .addMethod(
-          getUpdateMovieMethod(),
-          io.grpc.stub.ServerCalls.asyncUnaryCall(
-            new MethodHandlers<
-              MoviesRPC.Movie,
-              MoviesRPC.Response>(
-                service, METHODID_UPDATE_MOVIE)))
-        .addMethod(
-          getDeleteMovieMethod(),
-          io.grpc.stub.ServerCalls.asyncUnaryCall(
-            new MethodHandlers<
-              MoviesRPC.MovieName,
-              MoviesRPC.Response>(
-                service, METHODID_DELETE_MOVIE)))
-        .build();
-  }
-
   private static abstract class MovieMethodsBaseDescriptorSupplier
       implements io.grpc.protobuf.ProtoFileDescriptorSupplier, io.grpc.protobuf.ProtoServiceDescriptorSupplier {
     MovieMethodsBaseDescriptorSupplier() {}
@@ -714,9 +697,9 @@ public final class MovieMethodsGrpc {
   private static final class MovieMethodsMethodDescriptorSupplier
       extends MovieMethodsBaseDescriptorSupplier
       implements io.grpc.protobuf.ProtoMethodDescriptorSupplier {
-    private final java.lang.String methodName;
+    private final String methodName;
 
-    MovieMethodsMethodDescriptorSupplier(java.lang.String methodName) {
+    MovieMethodsMethodDescriptorSupplier(String methodName) {
       this.methodName = methodName;
     }
 
