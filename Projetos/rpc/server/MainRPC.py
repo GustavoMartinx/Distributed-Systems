@@ -114,13 +114,15 @@ class MovieMethodsServicer(MoviesRPC_pb2_grpc.MovieMethodsServicer):
 
     # Delete
     def DeleteMovie(self, request, context):
-        movie_id = request.title
-        if movie_id not in movies_db:
-            return MoviesRPC_pb2.Response(status=404, message="Movie not found.")
-        
-        del movies_db[movie_id]
-        pprint.pprint(movies_db)
-        return MoviesRPC_pb2.Response(status=200, message="Movie deleted successfully.")
+        print("chegou aqui")
+        movie_id = request.nameMovie
+        for index, movie in enumerate(movies_db.values(),1):
+            print(index)
+            if movie["id"] == request.nameMovie or movie["title"] == request.nameMovie:
+                del movies_db[index]
+                return MoviesRPC_pb2.Response(status=200, message="Movie deleted successfully.")
+            
+        return MoviesRPC_pb2.Response(status=404, message="Movie not found.")
 
 def serve():
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
