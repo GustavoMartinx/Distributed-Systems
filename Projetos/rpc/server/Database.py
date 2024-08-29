@@ -47,5 +47,5 @@ class Database:
         
 
     def delete(self, movie): 
-        print("[Database] Delete movie with id: ", movie.id)
-        return self.collections.delete_one({"_id": ObjectId(movie.id)})
+        print("[Database] Delete movie with name: ", movie)
+        return self.collections.delete_one({"title": movie})

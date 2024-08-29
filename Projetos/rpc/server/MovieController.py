@@ -65,7 +65,7 @@ class MovieController:
     def delete(self, request):
         try:
             print("[Movie Controller] Executing method delete()")
-            movie_deleted = self.movieService.delete(request.movie)
+            movie_deleted = self.movieService.delete(request)
             if movie_deleted > 0:
                 return Response(status=200, message="Movie deleted successfully!")
             else:
