@@ -3,6 +3,9 @@ import pprint
 from concurrent import futures
 import MoviesRPC_pb2
 import MoviesRPC_pb2_grpc
+from MovieController import MovieController
+from Database import Database
+from MovieService import MovieService
 
 # In-memory database for demonstration purposes
 movies_db = {1:{
@@ -24,6 +27,11 @@ movies_db = {1:{
         }}
 
 class MovieMethodsServicer(MoviesRPC_pb2_grpc.MovieMethodsServicer):
+    def __init__(self):
+        self.database = Database()
+        self.movieService = MovieService(self.database)
+        self.movieController = MovieController(self.movieService)
+        self.server_socket = None
     # Create
     def CreateMovie(self, request, context):
         print(request)
@@ -54,43 +62,11 @@ class MovieMethodsServicer(MoviesRPC_pb2_grpc.MovieMethodsServicer):
 
     # Retrieve by ID or Name
     def GetMovie(self, request, context):
-
-        print("teste")
-        print(request)
-        mock_movie = ""
-        pprint.pprint(movies_db)
-        for movie in movies_db.values():
-            pprint.pprint(movie)
-            if movie["id"] == request.nameMovie or movie["title"] == request.nameMovie:
-                print("true")
-                mock_movie = MoviesRPC_pb2.Movie(
-                id=movie["id"],
-                plot=movie["plot"],
-                genres=movie["genres"],
-                runtime=movie["runtime"],
-                cast=movie["cast"],
-                num_mflix_comments=movie["num_mflix_comments"],
-                title=movie["title"],
-                fullplot=movie["fullplot"],
-                languages=movie["languages"],
-                directors=movie["directors"],
-                rated=movie["rated"],
-                lastupdated=movie["lastupdated"],
-                year=movie["year"],
-                countries=movie["countries"],
-                type=movie["type"]
-        )
-
-                # Create a response object
-                response = MoviesRPC_pb2.Response(
-                    status=200,
-                    message="Movie found",
-                    movie=mock_movie
-                )
-
-                return response
+        movie = self.movieController.retrieve(request)
+        pprint.pprint(movie)
+        return movie
         return MoviesRPC_pb2.Response(status=404, message="Movie not found.")
-
+    
     # Retrieve by Actor
     def GetMoviesByActor(self, request, context):
         filtered_movies = [movie for movie in movies_db.values() if any(actor in movie.cast for actor in request.values)]

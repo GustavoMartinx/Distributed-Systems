@@ -6,7 +6,7 @@ from bson.json_util import dumps
 
 class Database:
     def __init__(self):
-        uri = "mongodb+srv://gustavomartins:qx6dTXRB8ArWSrz2@cluster0.60zsz.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
+        uri = "mongodb+srv://christofer:N6fnktyOVFXSRB39@cluster0.vb8ychn.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
         self.client = MongoClient(uri, server_api=ServerApi('1'))
         self.database = self.client.get_database("sample_mflix")
         self.collections = self.database.get_collection("movies")
@@ -20,8 +20,8 @@ class Database:
         return self.collections.insert_one(movie_dict)
     
     def find(self, movie):
-        print(f"[Database] Retrieving movie '{movie.id}'")
-        retrieved_movie = self.collections.find_one({"_id": ObjectId(movie.id)})
+        print(f"[Database] Retrieving movie '{movie}'")
+        retrieved_movie = self.collections.find_one({"title": movie})
         return retrieved_movie
 
     def update(self, movie):

@@ -1,5 +1,5 @@
-from Movies_pb2 import Response
-from Movies_pb2 import Movie
+from MoviesRPC_pb2 import Response
+from MoviesRPC_pb2 import Movie
 
 class MovieController:
     def __init__(self, movieService):
@@ -17,9 +17,9 @@ class MovieController:
     def retrieve(self, request):
         try:
             print("[Movie Controller] Executing method retrieve()")
-            movie_retrieved = self.movieService.retrieve(request.movie)
+            movie_retrieved = self.movieService.retrieve(request.nameMovie)
             if movie_retrieved == None:
-                return Response(status= 200, message="There are no movies with this ID.")
+                return Response(status= 201, message="There are no movies with this ID.")
             return Response(status=200, message="Movie retrieved successfully!", movie=movie_retrieved)
         except Exception as e:
             print(f"[Error] Failed on retrieve movie: {e}")

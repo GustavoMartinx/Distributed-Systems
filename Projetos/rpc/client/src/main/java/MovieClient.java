@@ -18,6 +18,15 @@ public class MovieClient {
         this.blockingStub = MovieMethodsGrpc.newBlockingStub(channel);
     }
 
+    public static boolean isConvertibleToInt(String input) {
+        try {
+            Integer.parseInt(input);
+            return true; // Conversion succeeded
+        } catch (NumberFormatException e) {
+            return false; // Conversion failed
+        }
+    }
+
     public static String conversor(int op) {
         switch (op) {
             case 1:
@@ -87,7 +96,7 @@ public class MovieClient {
                 break;
 
             case 4: // UPDATE
-            movieBuilder = MoviesRPC.Movie.newBuilder();
+                movieBuilder = MoviesRPC.Movie.newBuilder();
                 System.out.println("Digite o nome do filme:");
                 movieName = reader.nextLine();
                 movieBuilder.setTitle(movieName);
@@ -107,7 +116,7 @@ public class MovieClient {
                 System.out.println("Digite a sinopse do filme:");
                 plot = reader.nextLine();
                 movieBuilder.setPlot(plot);
-                updateMovie(movieID, movieBuilder); 
+                updateMovie(movieID, movieBuilder);
                 break;
         }
     }
@@ -159,10 +168,13 @@ public class MovieClient {
     }
 
     public static void updateMovie(String movieName, MoviesRPC.Movie.Builder updatedMovie) {
-       /*  MoviesRPC.UpdateMovieRequest request = MoviesRPC.UpdateMovieRequest.newBuilder()
-                .setMovieName(movieName)
-                .setUpdatedMovie(updatedMovie)
-                .build();*/
+        /*
+         * MoviesRPC.UpdateMovieRequest request =
+         * MoviesRPC.UpdateMovieRequest.newBuilder()
+         * .setMovieName(movieName)
+         * .setUpdatedMovie(updatedMovie)
+         * .build();
+         */
 
         MoviesRPC.Response response;
 
@@ -202,16 +214,21 @@ public class MovieClient {
         int choise = -1;
         Scanner reader = new Scanner(System.in);
         String currentMethod = Methods.empty;
+        String readed = "";
         System.out.println("\nBEM-VINDO AO PROTO FILMES!\n");
         MoviesRPC.Movie.Builder movieBuilder = null;
 
         while (true) {
             System.out.print(
                     "\n\n\nDigite o número da opção desejada:\n---------------------------------------\n1. Cadastrar um filme\n2. Consultar um filme\n3. Deletar um filme\n4. Atualizar as informações de um filme\n5. Listar os filmes de um ator ou atriz\n6. Listar os filmes de um gênero\n7. Sair\n---------------------------------------\n");
-
-            choise = Integer.parseInt(reader.nextLine());
-            currentMethod = conversor(choise);
-            handleOption(choise, reader, movieBuilder);
+            readed = reader.nextLine();
+            if (isConvertibleToInt(readed)) {
+                choise = Integer.parseInt(readed);
+                currentMethod = conversor(choise);
+                handleOption(choise, reader, movieBuilder);
+            }else{
+                continue;
+            }
         }
     }
 }

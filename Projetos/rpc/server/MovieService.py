@@ -1,5 +1,5 @@
 from google.protobuf.json_format import ParseDict
-from Movies_pb2 import Movie
+from MoviesRPC_pb2 import Movie
 
 class MovieService:
     def __init__(self, database):
@@ -24,13 +24,13 @@ class MovieService:
     
     def retrieve(self, movie):
         print("[Movie Service] Executing method retrieve()")
+        print(movie)
         movie_retrieved = self.database.find(movie)
-
         if movie_retrieved == None:
             return None
 
         movie_retrieved['id'] = str(movie_retrieved.pop('_id'))
-        movie_retrieved_response = ParseDict(movie_retrieved, Movie())
+        movie_retrieved_response = ParseDict(movie_retrieved, Movie(), ignore_unknown_fields=True)
 
         return movie_retrieved_response
 
