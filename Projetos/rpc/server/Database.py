@@ -35,14 +35,16 @@ class Database:
         print(f"[Database] Updating movie '{movie.title}'")
         print(movie)
         return self.collections.update_one({
-            "_id":  ObjectId(movie.id),
-        }, {"$set": {
-            "title": movie.title,
-            "directors": list(movie.directors),
-            "genres": list(movie.genres),
-            "cast": list(movie.cast),
-            "plot": movie.plot,
-        }})
+            "title":  movie.title,
+        }, {
+            "$set": {
+                "title": movie.title,
+                "directors": list(movie.directors),
+                "genres": list(movie.genres),
+                "cast": list(movie.cast),
+                "plot": movie.plot,
+            }
+        })
 
     def findByGenres(self, genres_list):
         print("[Database] Filtering categories with genres list: ", genres_list)

@@ -97,7 +97,7 @@ public class MovieClient {
                 System.out.println("Digite a sinopse do filme:");
                 plot = reader.nextLine();
                 movieBuilder.setPlot(plot);
-                updateMovie(movieID, movieBuilder);
+                updateMovie(movieName, movieBuilder);
                 break;
         }
     }
@@ -156,24 +156,25 @@ public class MovieClient {
         }
     }
 
+    /**
+     * Método responsável pela chamada da RPC que atualiza os
+     * dados de um filme e obtenção da sua resposta.
+     * 
+     * @param movieName - String do título do filme a ser atualizado.
+     * @param updatedMovie - Objeto filme com as novas informações.
+     * @return void
+     */
     public static void updateMovie(String movieName, MoviesRPC.Movie.Builder updatedMovie) {
-        /*
-         * MoviesRPC.UpdateMovieRequest request =
-         * MoviesRPC.UpdateMovieRequest.newBuilder()
-         * .setMovieName(movieName)
-         * .setUpdatedMovie(updatedMovie)
-         * .build();
-         */
-
         MoviesRPC.Response response;
 
         try {
-            // Call the updateMovie RPC method
+            // Realizando a chamada de procedimento remoto propriamente dita
             response = blockingStub.updateMovie(updatedMovie.build());
             if (response.getStatus() == 200) {
-                System.out.println("Movie updated successfully: " + movieName);
+                System.out.println(response.getMessage());
+                System.out.println(movieName);
             } else {
-                System.out.println("Failed to update movie.");
+                System.out.println(response.getMessage());
             }
         } catch (RuntimeException e) {
             System.out.println("RPC failed: " + e.getMessage());

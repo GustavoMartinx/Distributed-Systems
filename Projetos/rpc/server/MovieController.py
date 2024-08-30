@@ -30,7 +30,8 @@ class MovieController:
     def update(self, request):
         try:
             print("[Movie Controller] Executing method update()")
-            movie_updated = self.movieService.update(request.movie)
+            movie_updated = self.movieService.update(request)
+            # Verificando a quantidade de filme atualizados
             if movie_updated > 0:
                 return Response(status=200, message="Movie updated successfully!")
             else:
