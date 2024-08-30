@@ -57,42 +57,10 @@ class MovieMethodsServicer(MoviesRPC_pb2_grpc.MovieMethodsServicer):
         
         return MoviesRPC_pb2.Response(status=200, message=f"Found {len(filtered_movies)} movies.", movies=filtered_movies)
 
-    # Update
+    # Implementação da RPC que atualiza as informações de um filme através do seu título
     def UpdateMovie(self, request, context):
-
         response = self.movieController.update(request)
         return response
-
-        # Procurar o filme pelo título no dicionário
-        # movie_id = None
-        # for key, movie in movies_db.items():
-        #     if movie['title'] == request.title:
-        #         movie_id = key
-        #         break
-    
-        # if movie_id is None:
-        #     return MoviesRPC_pb2.Response(status=404, message="Movie not found.")
-    
-        # # Atualizar o filme com os dados do request
-        # movies_db[movie_id] = {
-        #     'id': str(movie_id),
-        #     'title': request.title if request.title else "Mock Title",
-        #     'directors': request.directors if request.directors else ["Mock Director 1", "Mock Director 2"],
-        #     'genres': request.genres if request.genres else ["Mock Genre 1", "Mock Genre 2"],
-        #     'cast': request.cast if request.cast else ["Mock Actor 1", "Mock Actor 2"],
-        #     'plot': request.plot if request.plot else "This is a mock plot for the movie.",
-        #     'runtime': 120,  # Mock data
-        #     'num_mflix_comments': 100,  # Mock data
-        #     'fullplot': "This is a mock full plot for the movie.",  # Mock data
-        #     'languages': ["English"],  # Mock data
-        #     'rated': "PG-13",  # Mock data
-        #     'lastupdated': "2024-08-23 00:00:00",  # Mock data
-        #     'year': 2023,  # Mock data
-        #     'countries': ["USA"],  # Mock data
-        #     'type': "movie"  # Mock data
-        # }
-    
-        # return MoviesRPC_pb2.Response(status=200, message="Movie updated successfully.", movie=request)
 
     # Implementação da RPC que deleta um filme através do seu título
     def DeleteMovie(self, request, context):
