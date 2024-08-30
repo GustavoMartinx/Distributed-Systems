@@ -1,3 +1,5 @@
+# TODO: Adicionar cabeçalho.
+
 from google.protobuf.json_format import MessageToDict
 from pymongo.mongo_client import MongoClient
 from pymongo.server_api import ServerApi
@@ -49,8 +51,7 @@ class Database:
     def findByCast(self, cast_list):
         print("[Database] Filtering autores with cast list: ", cast_list)
         return self.collections.find({"cast": {"$in": list(cast_list)}})
-        
 
-    def delete(self, movie): 
+    def delete(self, movie):
         print("[Database] Delete movie with name: ", movie)
         return self.collections.delete_one({"title": movie})

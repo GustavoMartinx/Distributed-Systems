@@ -1,9 +1,11 @@
+# TODO: Adicionar cabeçalho e comentários em português nos métodos.
+
 import pprint
 import MoviesRPC_pb2
 import MoviesRPC_pb2_grpc
-from MovieController import MovieController
 from Database import Database
 from MovieService import MovieService
+from MovieController import MovieController
 
 # In-memory database for demonstration purposes
 movies_db = {1:{
@@ -32,11 +34,12 @@ class MovieMethodsServicer(MoviesRPC_pb2_grpc.MovieMethodsServicer):
         self.movieController = MovieController(self.movieService)
         self.server_socket = None
 
+    # Implementação da RPC de criação de um filme
     def CreateMovie(self, request, context):
         response = self.movieController.create(request)
         return response
 
-    # Retrieve by Name
+    # Implementação da RPC que obtém um filme através do seu título
     def GetMovie(self, request, context):
         movie_retrieved = self.movieController.retrieve(request)
         pprint.pprint(movie_retrieved)
@@ -87,8 +90,8 @@ class MovieMethodsServicer(MoviesRPC_pb2_grpc.MovieMethodsServicer):
     
         return MoviesRPC_pb2.Response(status=200, message="Movie updated successfully.", movie=request)
 
-    # Delete
+    # Implementação da RPC que deleta um filme através do seu título
     def DeleteMovie(self, request, context):
         movie = request.nameMovie
-        retorno = self.movieController.delete(movie)
-        return retorno
+        response = self.movieController.delete(movie)
+        return response

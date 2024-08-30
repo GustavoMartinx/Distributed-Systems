@@ -67,14 +67,13 @@ public class MovieClient {
             case 2: // READ
                 System.out.println("Digite o nome do filme:");
                 movieName = reader.nextLine();
-
-                client.getMovie(movieName);
-
+                getMovie(movieName);
                 break;
+
             case 3: // DELETE
                 System.out.println("Digite o nome do filme:");
-                movieID = reader.nextLine();
-                deleteMovie(movieID);
+                movieName = reader.nextLine();
+                deleteMovie(movieName);
                 break;
 
             case 4: // UPDATE
@@ -122,28 +121,35 @@ public class MovieClient {
             // Realizando a chamada de procedimento remoto propriamente dita
             response = blockingStub.createMovie(movie.build());
             if (response.getStatus() == 200) {
-                System.out.println(response.getMessage());
-                System.out.println(response.getMovie());
+                System.out.println("\n" + response.getMessage());
+                System.out.println("\n" + response.getMovie());
             } else {
-                System.out.println(response.getMessage());
+                System.out.println("\n" + response.getMessage());
             }
         } catch (RuntimeException e) {
             System.out.println("RPC failed: " + e.getMessage());
         }
     }
 
+    /**
+     * Método responsável pela chamada da RPC que deleta um
+     * filme através do título e obtenção da sua resposta.
+     * 
+     * @param movieName - String do título do filme a ser deletado.
+     * @return void
+     */
     public static void deleteMovie(String movieName) {
-        // Create a MovieName request to delete the movie
+        // Criando uma requisição do tipo MovieName para deletar o filme
         MoviesRPC.MovieName request = MoviesRPC.MovieName.newBuilder().setNameMovie(movieName).build();
         MoviesRPC.Response response;
 
         try {
-            // Call the deleteMovie RPC method
+            // Realizando a chamada de procedimento remoto propriamente dita
             response = blockingStub.deleteMovie(request);
             if (response.getStatus() == 200) {
-                System.out.println("Movie deleted successfully: " + movieName);
+                System.out.println("\n" + response.getMessage() + movieName);
             } else {
-                System.out.println("Failed to delete movie.");
+                System.out.println("\n" + response.getMessage());
             }
         } catch (RuntimeException e) {
             System.out.println("RPC failed: " + e.getMessage());
@@ -181,17 +187,17 @@ public class MovieClient {
      * @param movieName - String do título do filme a ser consultado.
      * @return void
      */
-    public void getMovie(String movieName) {
+    public static void getMovie(String movieName) {
         MoviesRPC.MovieName request = MoviesRPC.MovieName.newBuilder().setNameMovie(movieName).build();
         MoviesRPC.Response response;
         try {
             // Realizando a chamada de procedimento remoto propriamente dita
             response = blockingStub.getMovie(request);
             if (response.getStatus() == 200) {
-                System.out.println(response.getMessage());
-                System.out.println(response.getMovie());
+                System.out.println("\n" + response.getMessage());
+                System.out.println("\n" + response.getMovie());
             } else {
-                System.out.println(response.getMessage());
+                System.out.println("\n" + response.getMessage());
             }
         } catch (StatusRuntimeException e) {
             System.err.println("RPC failed: " + e.getStatus());

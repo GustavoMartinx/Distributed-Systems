@@ -1,3 +1,5 @@
+# TODO: Adicionar cabeçalho.
+
 from MoviesRPC_pb2 import Response
 from MoviesRPC_pb2 import Movie
 
@@ -66,13 +68,11 @@ class MovieController:
         try:
             print("[Movie Controller] Executing method delete()")
             movie_deleted = self.movieService.delete(request)
+            # Verificando a quantidade de filmes excluídos
             if movie_deleted > 0:
-                return Response(status=200, message="Movie deleted successfully!")
+                return Response(status=200, message="Movie deleted successfully: ")
             else:
                 raise Exception("Something went wrong while deleting movie.")
         except Exception as e:
             print(f"[Error] Failed on delete movie: {e}")
             return Response(status=400, message="Failed on delete movie" + str(e))
-        
-    def invalidMethod(self):
-        return Response(status=400, message="Invalid operation. Please, insert a valid operation.")
