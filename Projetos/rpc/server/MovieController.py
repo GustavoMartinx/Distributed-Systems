@@ -8,7 +8,7 @@ class MovieController:
     def create(self, request):
         try:
             print("[Movie Controller] Executing method create()")
-            new_movie = self.movieService.create(request.movie)
+            new_movie = self.movieService.create(request)
             return Response(status=200, message="Movie created successfully!", movie=new_movie)
         except Exception as e:
             print(f"[Error] Failed to create movie: {e}")
@@ -19,7 +19,7 @@ class MovieController:
             print("[Movie Controller] Executing method retrieve()")
             movie_retrieved = self.movieService.retrieve(request.nameMovie)
             if movie_retrieved == None:
-                return Response(status= 201, message="There are no movies with this ID.")
+                return Response(status= 201, message="There are no movies with this title.")
             return Response(status=200, message="Movie retrieved successfully!", movie=movie_retrieved)
         except Exception as e:
             print(f"[Error] Failed on retrieve movie: {e}")

@@ -1,3 +1,5 @@
+// TODO: Adicionar cabeçalho e comentários em português nos métodos com JavaDocs.
+
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.StatusRuntimeException;
@@ -25,26 +27,6 @@ public class MovieClient {
         } catch (NumberFormatException e) {
             return false; // Conversion failed
         }
-    }
-
-    public static String conversor(int op) {
-        switch (op) {
-            case 1:
-                return Methods.create;
-            case 2:
-                return Methods.read;
-            case 3:
-                return Methods.delete;
-            case 4:
-                return Methods.update;
-            case 5:
-                return Methods.findByCast;
-            case 6:
-                return Methods.findByGenres;
-            case 7:
-                return Methods.exit;
-        }
-        return Methods.empty;
     }
 
     public static void handleOption(int operation, Scanner reader, MoviesRPC.Movie.Builder movieBuilder)
@@ -83,7 +65,7 @@ public class MovieClient {
                 createMovie(movieBuilder);
                 break;
             case 2: // READ
-                System.out.println("Digite o ID do filme:");
+                System.out.println("Digite o nome do filme:");
                 movieName = reader.nextLine();
 
                 client.getMovie(movieName);
@@ -126,23 +108,24 @@ public class MovieClient {
         channel.shutdown().awaitTermination(5, TimeUnit.SECONDS);
     }
 
-    // Example method to create a movie
+    /**
+     * Método responsável pela chamada da RPC de criação de um
+     * filme e obtenção da sua resposta.
+     * 
+     * @param movie - Objeto filme a ser criado (MoviesRPC.Movie.Builder)
+     * @return void
+     */
     public static void createMovie(MoviesRPC.Movie.Builder movie) {
-        /*
-         * MoviesRPC.Movie request = MoviesRPC.Movie.newBuilder()
-         * .setTitle(movie.getTitle())
-         * .setYear(movie.getYear())
-         * .addAllDirectors(movie.getDirectorsList())
-         * .build();
-         */
 
         MoviesRPC.Response response;
         try {
+            // Realizando a chamada de procedimento remoto propriamente dita
             response = blockingStub.createMovie(movie.build());
             if (response.getStatus() == 200) {
-                System.out.println("Movie created successfully: " + movie.getTitle());
+                System.out.println(response.getMessage());
+                System.out.println(response.getMovie());
             } else {
-                System.out.println("Failed to create movie.");
+                System.out.println(response.getMessage());
             }
         } catch (RuntimeException e) {
             System.out.println("RPC failed: " + e.getMessage());
@@ -191,17 +174,24 @@ public class MovieClient {
         }
     }
 
-    // Example method to get a movie by name
+    /**
+     * Método responsável pela chamada da RPC de consulta de um
+     * filme através do título e obtenção da sua resposta.
+     * 
+     * @param movieName - String do título do filme a ser consultado.
+     * @return void
+     */
     public void getMovie(String movieName) {
         MoviesRPC.MovieName request = MoviesRPC.MovieName.newBuilder().setNameMovie(movieName).build();
         MoviesRPC.Response response;
         try {
+            // Realizando a chamada de procedimento remoto propriamente dita
             response = blockingStub.getMovie(request);
             if (response.getStatus() == 200) {
-                MoviesRPC.Movie movie = response.getMovie();
-                System.out.println("Found movie: " + movie.getTitle() + " (" + movie.getYear() + ")");
+                System.out.println(response.getMessage());
+                System.out.println(response.getMovie());
             } else {
-                System.out.println("Movie not found.");
+                System.out.println(response.getMessage());
             }
         } catch (StatusRuntimeException e) {
             System.err.println("RPC failed: " + e.getStatus());
@@ -213,7 +203,6 @@ public class MovieClient {
 
         int choise = -1;
         Scanner reader = new Scanner(System.in);
-        String currentMethod = Methods.empty;
         String readed = "";
         System.out.println("\nBEM-VINDO AO PROTO FILMES!\n");
         MoviesRPC.Movie.Builder movieBuilder = null;
@@ -224,7 +213,6 @@ public class MovieClient {
             readed = reader.nextLine();
             if (isConvertibleToInt(readed)) {
                 choise = Integer.parseInt(readed);
-                currentMethod = conversor(choise);
                 handleOption(choise, reader, movieBuilder);
             }else{
                 continue;

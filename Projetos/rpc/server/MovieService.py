@@ -19,16 +19,30 @@ class MovieService:
         movie_creation_response = Movie()
         movie_creation_response.id = str(movie_created.inserted_id)
 
-        movie_creation_response = self.retrieve(movie_creation_response)
+        movie_creation_response = self.retrieveById(movie_creation_response.id)
         return movie_creation_response
     
     def retrieve(self, movie):
         print("[Movie Service] Executing method retrieve()")
-        print(movie)
         movie_retrieved = self.database.find(movie)
+        
         if movie_retrieved == None:
             return None
 
+        # Realizando parsing do filme obtido da consulta ao banco para corresponder ao campo id da classe Movie
+        movie_retrieved['id'] = str(movie_retrieved.pop('_id'))
+        movie_retrieved_response = ParseDict(movie_retrieved, Movie(), ignore_unknown_fields=True)
+
+        return movie_retrieved_response
+    
+    def retrieveById(self, movie_id):
+        print("[Movie Service] Executing method retrieveById()")
+        movie_retrieved = self.database.findById(movie_id)
+        
+        if movie_retrieved == None:
+            return None
+
+        # Realizando parsing do filme obtido da consulta ao banco para corresponder ao campo id da classe Movie
         movie_retrieved['id'] = str(movie_retrieved.pop('_id'))
         movie_retrieved_response = ParseDict(movie_retrieved, Movie(), ignore_unknown_fields=True)
 
