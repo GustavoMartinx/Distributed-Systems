@@ -127,6 +127,21 @@ public class MovieClient {
                 
                 getMoviesByCast(movieFilterBuilder);
                 break;
+
+            case 6: // FIND BY GENRES
+                System.out.println("Digite os gêneros (separados por vírgula):");
+                String genreInput = reader.nextLine();
+                
+                // Regex que lida com ", " ou ","
+                String[] genreArray = genreInput.split(",\\s*");
+                
+                // Iterando sobre cada substring e passando-a para o método addValues
+                for (String genreItem : genreArray) {
+                    movieFilterBuilder.addValues(genreItem.trim());
+                }
+                
+                getMoviesByGenres(movieFilterBuilder);
+                break;
         }
     }
 
@@ -248,6 +263,32 @@ public class MovieClient {
         try {
             // Realizando a chamada de procedimento remoto propriamente dita
             response = blockingStub.getMoviesByActor(movieFilters.build());
+            if (response.getStatus() == 200) {
+                System.out.println("\n" + response.getMessage());
+                System.out.println("\n" + response.getMoviesList());
+            } else {
+                System.out.println("\n" + response.getMessage());
+            }
+        } catch (StatusRuntimeException e) {
+            System.err.println("RPC failed: " + e.getStatus());
+        }
+    }
+
+    /**
+     * Método responsável pela chamada da RPC que, dado uma lista de gêneros,
+     * obtém todos filmes desses gêneros. Em seguida, o método trata a
+     * resposta dessa operação.
+     * 
+     * @param movieFilters Estrutura que contém o vetor dos atributos
+     * da busca. Neste caso, o vetor deve conter os gêneros de filmes.
+     * @return void
+     */
+    public static void getMoviesByGenres(MoviesRPC.MovieFilters.Builder movieFilters) {
+        MoviesRPC.Response response;
+        
+        try {
+            // Realizando a chamada de procedimento remoto propriamente dita
+            response = blockingStub.getMoviesByCategory(movieFilters.build());
             if (response.getStatus() == 200) {
                 System.out.println("\n" + response.getMessage());
                 System.out.println("\n" + response.getMoviesList());

@@ -56,8 +56,8 @@ class MovieService:
         movie_update_response = movie_updated.modified_count
         return movie_update_response
         
-    def findByCategories(self, values):
-        print("[Movie Service] Executing method findByCategories()")
+    def findByGenres(self, values):
+        print("[Movie Service] Executing method findByGenres()")
         movies = self.database.findByGenres(values)
 
         movies_list = []
@@ -69,15 +69,7 @@ class MovieService:
             new_movie.cast.extend(list(movie.get("cast", [])))
             new_movie.directors.extend(list(movie.get("directors", [])))
             new_movie.plot = movie.get("plot", "N/A")
-            # new_movie.runtime = movie["runtime"]
-            # new_movie.num_mflix_comments = movie["num_mflix_comments"]
-            # new_movie.fullplot = movie["fullplot"]
-            # new_movie.languages.extend(list(movie["languages"]))
-            # new_movie.rated = movie["rated"]
-            # new_movie.lastupdated = movie["lastupdated"]
-            # new_movie.year = movie["year"]
-            # new_movie.countries.extend(list(movie["countries"]))
-            # new_movie.type = movie["type"]
+            
             movies_list.append(new_movie)
 
         return movies_list

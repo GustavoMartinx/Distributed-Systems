@@ -41,17 +41,17 @@ class MovieController:
             return Response(status=400, message="Failed on update movie: " + str(e))
         
         
-    def findByCategories(self, request):
+    def findByGenres(self, request):
         try:
-            print("[Movie Controller] Executing method findByCategories()")
-            movies_array = self.movieService.findByCategories(request.filters.values)
+            print("[Movie Controller] Executing method findByGenres()")
+            movies_array = self.movieService.findByGenres(request.values)
             # Verificando se a lista filtrada é vazia
             if not movies_array:
                 return Response(status=200, message="Successfully on find movie by genres! But there are no movies with this gender.")
             return Response(status=200, message="Successfully on find movie by genres!", movies=movies_array)
         except Exception as e:
-            print(f"[Error] Failed on find movie by categories {e}")
-            return Response(status=400, message="Failed on find movie by categories: " + str(e))
+            print(f"[Error] Failed on find movie by genres {e}")
+            return Response(status=400, message="Failed on find movie by genres: " + str(e))
         
     def findByCast(self, request):
         try:
