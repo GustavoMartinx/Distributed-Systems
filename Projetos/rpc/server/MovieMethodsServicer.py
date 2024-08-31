@@ -45,11 +45,10 @@ class MovieMethodsServicer(MoviesRPC_pb2_grpc.MovieMethodsServicer):
         pprint.pprint(movie_retrieved)
         return movie_retrieved
     
-    # Retrieve by Actor
+    # Implementação da RPC que obtém todos os filmes nos quais os membros do elenco fornecidos participam
     def GetMoviesByActor(self, request, context):
-        filtered_movies = [movie for movie in movies_db.values() if any(actor in movie.cast for actor in request.values)]
-        
-        return MoviesRPC_pb2.Response(status=200, message=f"Found {len(filtered_movies)} movies.", movies=filtered_movies)
+        retrieved_movies_list = self.movieController.findByCast(request)
+        return retrieved_movies_list
 
     # Retrieve by Category (Genre)
     def GetMoviesByCategory(self, request, context):

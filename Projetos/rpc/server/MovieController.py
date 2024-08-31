@@ -53,10 +53,10 @@ class MovieController:
             print(f"[Error] Failed on find movie by categories {e}")
             return Response(status=400, message="Failed on find movie by categories: " + str(e))
         
-    def findByAtor(self, request):
+    def findByCast(self, request):
         try:
-            print("[Movie Controller] Executing method findByAtor()")
-            movies_array = self.movieService.findByAtor(request.filters.values)
+            print("[Movie Controller] Executing method findByCast()")
+            movies_array = self.movieService.findByCast(request.values)
             # Verificando se a lista filtrada é vazia
             if not movies_array:
                 return Response(status=200, message="Successfully on find movie by cast! But there are no movies with this cast.")

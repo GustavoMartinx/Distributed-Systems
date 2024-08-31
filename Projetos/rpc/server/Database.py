@@ -51,7 +51,7 @@ class Database:
         return self.collections.find({"genres": {"$in": list(genres_list)}})
 
     def findByCast(self, cast_list):
-        print("[Database] Filtering autores with cast list: ", cast_list)
+        print("[Database] Filtering movies with cast list: ", cast_list)
         return self.collections.find({"cast": {"$in": list(cast_list)}})
 
     def delete(self, movie):

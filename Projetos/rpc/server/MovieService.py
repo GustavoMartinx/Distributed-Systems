@@ -82,8 +82,8 @@ class MovieService:
 
         return movies_list
         
-    def findByAtor(self, values):
-        print("[Movie Service] Executing method findByAtor()")
+    def findByCast(self, values):
+        print("[Movie Service] Executing method findByCast()")
         movies = self.database.findByCast(values)
 
         movies_list = []
@@ -95,15 +95,6 @@ class MovieService:
             new_movie.cast.extend(list(movie.get("cast", [])))
             new_movie.directors.extend(list(movie.get("directors", [])))
             new_movie.plot = movie.get("plot", "N/A")
-            # new_movie.runtime = movie.get("runtime")
-            # new_movie.num_mflix_comments = movie.get("num_mflix_comments")
-            # new_movie.fullplot = movie.get("fullplot")
-            # new_movie.languages.extend(list(movie.get("languages", [])))
-            # new_movie.rated = movie.get("rated")
-            # new_movie.lastupdated = movie.get("lastupdated")
-            # new_movie.year = movie.get("year")
-            # new_movie.countries.extend(list(movie.get("countries", [])))
-            # new_movie.type = movie.get("type")
 
             movies_list.append(new_movie)
 
