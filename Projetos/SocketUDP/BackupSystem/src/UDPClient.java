@@ -25,13 +25,13 @@ public class UDPClient {
             
             String inputBuffer = "";
             System.out.println("IP Destination:");
-            inputBuffer = reader.nextLine();
-            // inputBuffer = "127.0.0.1";
+            // inputBuffer = reader.nextLine();
+            inputBuffer = "127.0.0.1";
             String dstIP = inputBuffer;
             
             System.out.println("Port Destination:");
-            inputBuffer = reader.nextLine();
-            // inputBuffer = "6666";
+            // inputBuffer = reader.nextLine();
+            inputBuffer = "6666";
             int dstPort = Integer.parseInt(inputBuffer);
             
             // Armazenando o IP do destino
@@ -133,15 +133,18 @@ public class UDPClient {
 
         // Envia o pacote com FileName e FileSize
         dgramSocket.send(dgramPacket_NameAndSize);
-
+        
+        int packetsSent = 1;
+        System.out.println("Pacotes enviados:");
+        System.out.println(packetsSent + "(nome e tamanho)");
 
         // Obtendo e enviando o conteúdo do arquivo
         try (FileInputStream fis = new FileInputStream(file)) {
-
+            
             int byteReaded;                         // Byte lido do arquivo
             int pktSize = 0;                        // Contador do tamanho do pacote
             byte[] fileContent = new byte[1024];    // Array para armazenar o conteúdo do arquivo
-
+            
             do {
                 // Lendo bytes do arquivo e inserindo em fileContent
                 while ((byteReaded = fis.read()) != -1 && pktSize < 1024) {
@@ -168,6 +171,8 @@ public class UDPClient {
                     serverPort
                 );
                 dgramSocket.send(dgramPacket_FileContent);
+                packetsSent +=1;
+                System.out.println(packetsSent);
 
                 Arrays.fill(fileContent, (byte)0);  // Limpar fileContent
                 pktSize = 0;                        // Reinicia o contador do tamanho do pacote
@@ -183,7 +188,7 @@ public class UDPClient {
             //     checksumHex.append(String.format("%02x", b));
             // }
 
-            // Envia o checksum final como uma string hexadecimal
+            // Envia o checksum final
             // byte[] checksumPayload = checksumHex.toString().getBytes();
             DatagramPacket dgramPacket_Checksum = new DatagramPacket(
                 checksumBytes,
@@ -192,6 +197,13 @@ public class UDPClient {
                 serverPort
             );
             dgramSocket.send(dgramPacket_Checksum);
+            
+            // Debuggin TODO: excluir
+            packetsSent += 1;
+            System.out.println(packetsSent + "(checksum)");
+
+            System.out.println("====");
+            System.out.println("checksum: " + checksumBytes);
 
             fis.close();
         }

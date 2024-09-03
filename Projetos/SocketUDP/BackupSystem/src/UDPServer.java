@@ -31,6 +31,8 @@ public class UDPServer {
             if (!directory.exists()) {
                 directory.mkdir();
             }
+
+            int entrou = 0;
             
             System.out.println("Server online!");
             while(true) {
@@ -45,12 +47,13 @@ public class UDPServer {
 
                 // Aguardando a chegada do primeiro datagrama (FileName e FileSize)
                 dgramSocket.receive(dgramPacket_NameAndSize);
+                int packetsReceived = 1;
 
                 // Atualizando o MessageDigest com os dados recebidos no pacote
                 md.update(dgramPacket_NameAndSize.getData(), 0, dgramPacket_NameAndSize.getLength());
 
                 // Obtendo os dados do primeiro pacote (FileName e FileSize)
-                byte[] datagramReceived = dgramPacket_NameAndSize.getData();
+                byte[] datagramReceived = dgramPacket_NameAndSize.getData(); // usar bytebuffer aqui?
                 int dgramPktLength = dgramPacket_NameAndSize.getLength();
 
                 // Realizando conversões de tipos
@@ -58,10 +61,14 @@ public class UDPServer {
                 byte[] intBytes = Arrays.copyOfRange(datagramReceived, dgramPktLength - 4, dgramPktLength);
                 int fileSize = ByteBuffer.wrap(intBytes).getInt();
 
-                System.out.println("Cliente: " + filename + fileSize);
+                System.out.println("===\nCliente:" + "\nNome do arquivo: " + filename + "\nTamanho do arquivo: " + fileSize + "\n===");
 
                 
-                // Recebendo todos os datagramas referentes ao conteúdo do arquivo
+                // RECEBENDO TODOS OS DATAGRAMAS REFERENTES AO CONTEÚDO DO ARQUIVO
+                
+                // Usando o tamanho do arquivo para calcular quantos pacotes serão recebidos
+                int totalDatagramsPackets = (int) Math.ceil(fileSize / 1024);
+                int checksumPacketIndex = totalDatagramsPackets + 3;
 
                 // Para criar o arquivo no servidor
                 FileOutputStream fos = new FileOutputStream(serverPath + filename);
@@ -73,6 +80,7 @@ public class UDPServer {
                 // Cria um buffer para receber o conteúdo do arquivo
                 byte[] fileContent = new byte[1024];
                 
+
                 while (true) {
                     // Criando um pacote vazio
                     DatagramPacket dgramPacket_FileContent = 
@@ -80,24 +88,25 @@ public class UDPServer {
                     
                     // Aguardando a chegada de datagramas com o conteúdo do arquivo
                     dgramSocket.receive(dgramPacket_FileContent);
-                    
-                    // Debuggin TODO: excluir
-                    // System.out.println(dgramPacket_FileContent.getLength());
-                    // byte[] fileContentBytes = dgramPacket_FileContent.getData();
-                    // String fileContentString = new String(fileContentBytes);
-                    // System.out.println(fileContentString + "\n");
+                    packetsReceived += 1;
+                    System.out.println(packetsReceived);
                     
                     // Verificando se é o último pacote (checksum)
-                    if (dgramPacket_FileContent.getLength() == 20) { // OBS.: isso aq ta com cara que vai explodir. ps.: eh, explodiu mesmo
+                    if (packetsReceived == checksumPacketIndex) {
                         DatagramPacket dgramPacket_Checksum = dgramPacket_FileContent;
+                        
+                        // Debuggin TODO: excluir
+                        entrou += 1;
+                        System.err.println("entrou: " + entrou);
 
                         // Verificando o checksum
                         byte[] receivedChecksum = Arrays.copyOf(dgramPacket_Checksum.getData(), dgramPacket_Checksum.getLength());
                         byte[] calculatedChecksum = md.digest();
                         
+                        // TODO: Existe um caractere sendo pulado (ou no envio ou no recebimento/escrita) do arquivo que pode ser o que está gerando a incosistência nos checksums
                         // Debuggin TODO: excluir
-                        // System.out.println(receivedChecksum);
-                        // System.out.println(calculatedChecksum);
+                        System.out.println("receivedChecksum: " + receivedChecksum);
+                        System.out.println("calculatedChecksum: " + calculatedChecksum);
                         
                         checksumCorrect = Arrays.equals(receivedChecksum, calculatedChecksum);
                         break; // No recebimento do datagrama checksum, o loop é finalizado
@@ -105,7 +114,7 @@ public class UDPServer {
 
                     // Atualizando o MessageDigest com os dados recebidos no pacote
                     md.update(dgramPacket_FileContent.getData(), 0, dgramPacket_FileContent.getLength());
-                    
+
                     // Escrevendo os dados recebidos no arquivo
                     bos.write(dgramPacket_FileContent.getData(), 0, dgramPacket_FileContent.getLength());
                     bos.flush();
@@ -121,7 +130,7 @@ public class UDPServer {
                     newFile.delete();
 
                     // Enviar resposta para o cliente que ocorreu um erro
-                    String response = "Something went wrong when uploading the file '" + filename + "'.";
+                    String response = "Something went wrong when uploading file '" + filename + "'.";
                     System.out.println(response);
 
                     // Enviando resposta para o cliente
@@ -136,7 +145,11 @@ public class UDPServer {
                     DatagramPacket reply = new DatagramPacket(response.getBytes(), response.length(), dgramPacket_NameAndSize.getSocketAddress());
                     dgramSocket.send(reply);
                 }
+                // Debuggin TODO: excluir
+                System.out.println("entrou final");
+                System.out.println(entrou);
             } // while
+
 
         } catch (SocketException e){
             System.out.println("Socket: " + e.getMessage());
