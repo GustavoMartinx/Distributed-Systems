@@ -35,14 +35,15 @@ public class MovieClient {
      * Realiza o tratamento da escolha de opção do usuário, disparando
      * a chamada de procedimento remoto respectiva à escolha.
      * 
-     * @param operation - Opção escolhida pelo usuário
-     * @param reader - Objeto responsável pelo I/O
-     * @param movieBuilder - Movies.Movie.Builder
+     * @param operation          - Opção escolhida pelo usuário
+     * @param reader             - Objeto responsável pelo I/O
+     * @param movieBuilder       - Movies.Movie.Builder
      * @param movieFilterBuilder - Movies.MovieFilters.Builder
      * @return void
      * @throws InterruptedException
      */
-    public static void handleOption(int operation, Scanner reader, MoviesRPC.Movie.Builder movieBuilder, MoviesRPC.MovieFilters.Builder movieFilterBuilder)
+    public static void handleOption(int operation, Scanner reader, MoviesRPC.Movie.Builder movieBuilder,
+            MoviesRPC.MovieFilters.Builder movieFilterBuilder)
             throws InterruptedException {
 
         String movieName = "";
@@ -119,28 +120,32 @@ public class MovieClient {
 
                 // Regex que lida com ", " ou ","
                 String[] castArray = castInput.split(",\\s*");
-                
+
                 // Iterando sobre cada substring e passando-a para o método addValues
                 for (String castItem : castArray) {
                     movieFilterBuilder.addValues(castItem.trim());
                 }
-                
+
                 getMoviesByCast(movieFilterBuilder);
                 break;
 
             case 6: // FIND BY GENRES
                 System.out.println("Digite os gêneros (separados por vírgula):");
                 String genreInput = reader.nextLine();
-                
+
                 // Regex que lida com ", " ou ","
                 String[] genreArray = genreInput.split(",\\s*");
-                
+
                 // Iterando sobre cada substring e passando-a para o método addValues
                 for (String genreItem : genreArray) {
                     movieFilterBuilder.addValues(genreItem.trim());
                 }
-                
+
                 getMoviesByGenres(movieFilterBuilder);
+                break;
+
+            case 7:
+
                 break;
         }
     }
@@ -203,7 +208,7 @@ public class MovieClient {
      * Método responsável pela chamada da RPC que atualiza os
      * dados de um filme e obtenção da sua resposta.
      * 
-     * @param movieName - String do título do filme a ser atualizado.
+     * @param movieName    - String do título do filme a ser atualizado.
      * @param updatedMovie - Objeto filme com as novas informações.
      * @return void
      */
@@ -254,12 +259,13 @@ public class MovieClient {
      * Em seguida, o método trata a resposta dessa operação.
      * 
      * @param movieFilters Estrutura que contém o vetor dos atributos
-     * da busca. Neste caso, o vetor deve conter os nomes dos membros do elenco.
+     *                     da busca. Neste caso, o vetor deve conter os nomes dos
+     *                     membros do elenco.
      * @return void
      */
     public static void getMoviesByCast(MoviesRPC.MovieFilters.Builder movieFilters) {
         MoviesRPC.Response response;
-        
+
         try {
             // Realizando a chamada de procedimento remoto propriamente dita
             response = blockingStub.getMoviesByActor(movieFilters.build());
@@ -280,12 +286,13 @@ public class MovieClient {
      * resposta dessa operação.
      * 
      * @param movieFilters Estrutura que contém o vetor dos atributos
-     * da busca. Neste caso, o vetor deve conter os gêneros de filmes.
+     *                     da busca. Neste caso, o vetor deve conter os gêneros de
+     *                     filmes.
      * @return void
      */
     public static void getMoviesByGenres(MoviesRPC.MovieFilters.Builder movieFilters) {
         MoviesRPC.Response response;
-        
+
         try {
             // Realizando a chamada de procedimento remoto propriamente dita
             response = blockingStub.getMoviesByCategory(movieFilters.build());
@@ -301,10 +308,16 @@ public class MovieClient {
     }
 
     public static void main(String[] args) throws InterruptedException {
-        client = new MovieClient("localhost", 8080);
+        Scanner reader = new Scanner(System.in);
+        String ip = "";
+        int port = 0;
+        System.out.println("Digite o ip de comunicação");
+        ip = reader.nextLine();
+        System.out.println("Digite a porta de comunicação");
+        port = Integer.parseInt(reader.nextLine());
+        client = new MovieClient(ip, port);
 
         int choise = -1;
-        Scanner reader = new Scanner(System.in);
         String readed = "";
         MoviesRPC.Movie.Builder movieBuilder = null;
         MoviesRPC.MovieFilters.Builder movieFilterBuilder = MoviesRPC.MovieFilters.newBuilder();
@@ -315,10 +328,15 @@ public class MovieClient {
             readed = reader.nextLine();
             if (isConvertibleToInt(readed)) {
                 choise = Integer.parseInt(readed);
+                if (choise == 7) {
+                    System.out.println("Obrigado por usar o MovieClient. Até a próxima!");
+                    break;
+                }
                 handleOption(choise, reader, movieBuilder, movieFilterBuilder);
-            }else{
+            } else {
                 continue;
             }
         }
+        System.exit(0);
     }
 }
