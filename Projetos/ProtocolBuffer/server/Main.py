@@ -9,11 +9,13 @@ from MovieController import MovieController
 
 class Server:
     def __init__(self):
+        # Inicializa o banco de dados, serviço de filmes e controlador de filmes
         self.database = Database()
         self.movieService = MovieService(self.database)
         self.movieController = MovieController(self.movieService)
         self.server_socket = None
 
+    # Middleware para processar a requisição com base no método solicitado
     def middleware(self, request):
         print("Using middleware, method: ", request.method)
         if request.method == "CREATE":
@@ -59,6 +61,7 @@ class Server:
             raise e
 
     def run(self):
+        # Cria um socket de servidor
         server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         server.bind(('localhost', 8080))  # Substitua 'localhost' pelo endereço IP desejado
         server.listen(1)
@@ -67,10 +70,12 @@ class Server:
         print("Server online.")
         
         try:
+            # Aceita a conexão do cliente
             client_socket, addr = server.accept()
             print(f"Conexão estabelecida com {addr}")
             while True:
                 try:
+                    # Processa as requisições do cliente
                     self.handle_client(client_socket)
                 except Exception as e:
                     raise e
@@ -79,6 +84,7 @@ class Server:
             print("Error: ", e)
             
         finally:
+            # Fecha o socket do cliente e do servidor
             client_socket.close()
             if self.server_socket:
                 self.server_socket.close()

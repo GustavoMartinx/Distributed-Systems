@@ -1,3 +1,11 @@
+/*
+ * # Autores: Christofer Daniel, Diogo Rodrigues e Gustavo Martins
+ Data: 14/08/2024
+
+Este código é usado como um enumerador para converter as opções escoolhidas de numerico para Sting
+* 
+*/
+
 public class Methods
 {
     final static public String create = "CREATE";

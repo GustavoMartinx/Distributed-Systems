@@ -1,3 +1,13 @@
+/*
+ * # Autores: Christofer Daniel, Diogo Rodrigues e Gustavo Martins
+ Data: 14/08/2024
+
+Este código é a classe principal que implementa a interface CLI do sistema de consulta de filmes
+* Esse código usa protobuffs para implementar a conversão de mensagens entre o client e o server
+* 
+*/
+
+
 import java.util.Scanner;
 import java.io.OutputStream;
 import java.io.DataInputStream;
@@ -9,7 +19,9 @@ import java.rmi.server.Operation;
 import com.google.protobuf.InvalidProtocolBufferException;
 
 public class Main {
-
+    /**
+    *Método usado para conver a opção escolhida pelo usuário de opção numerica para textual
+    */
     public static String conversor(int op) {
         switch (op) {
             case 1:
@@ -50,72 +62,88 @@ public class Main {
 
         switch (operation) {
             case 1: // CREATE
+                //Na opção 1 é criado um filme, cada informação do filme vai sendo solicitada e completado com obuilder
+                // Solicita o nome do filme e define no movieBuilder
                 System.out.println("Digite o nome do filme:");
                 movieName = reader.nextLine();
                 movieBuilder.setTitle(movieName);
 
+                // Solicita os diretores do filme e adiciona no movieBuilder
                 System.out.println("Digite os diretores do filme:");
                 directors = reader.nextLine();
                 movieBuilder.addDirectors(directors);
 
+                // Solicita o gênero do filme e adiciona no movieBuilder
                 System.out.println("Digite o gênero do filme:");
                 genre = reader.nextLine();
                 movieBuilder.addGenres(genre);
 
+                // Solicita o nome de um membro do elenco e adiciona no movieBuilder
                 System.out.println("Digite o nome de um membro do elenco:");
                 cast = reader.nextLine();
                 movieBuilder.addCast(cast);
 
+                // Solicita a sinopse do filme e define no movieBuilder
                 System.out.println("Digite a sinopse do filme:");
                 plot = reader.nextLine();
                 movieBuilder.setPlot(plot);
 
                 break;
 
-            case 2: // READ
+            case 2: // READ: Busca um filme na base de dados
+                // Solicita o ID do filme e define no movieBuilder
                 System.out.println("Digite o ID do filme:");
                 movieID = reader.nextLine();
                 movieBuilder.setId(movieID);
                 break;
 
-            case 3: // DELETE
+            case 3: // DELETE: Deleta um filme na base de dados
+                // Solicita o ID do filme e define no movieBuilder
                 System.out.println("Digite o ID do filme:");
                 movieID = reader.nextLine();
                 movieBuilder.setId(movieID);
                 break;
 
-            case 4: // UPDATE
+            case 4: // UPDATE: Atualiza um filme na base de dados
+                // Solicita o ID do filme e define no movieBuilder
                 System.out.println("Digite o ID do filme:");
                 movieID = reader.nextLine();
                 movieBuilder.setId(movieID);
 
+                // Solicita o nome do filme e define no movieBuilder
                 System.out.println("Digite o nome do filme:");
                 movieName = reader.nextLine();
                 movieBuilder.setTitle(movieName);
 
+                // Solicita os diretores do filme e adiciona no movieBuilder
                 System.out.println("Digite os diretores do filme:");
                 directors = reader.nextLine();
                 movieBuilder.addDirectors(directors);
 
+                // Solicita o gênero do filme e adiciona no movieBuilder
                 System.out.println("Digite o gênero do filme:");
                 genre = reader.nextLine();
                 movieBuilder.addGenres(genre);
 
+                // Solicita o nome de um membro do elenco e adiciona no movieBuilder
                 System.out.println("Digite o nome de um membro do elenco:");
                 cast = reader.nextLine();
                 movieBuilder.addCast(cast);
 
+                // Solicita a sinopse do filme e define no movieBuilder
                 System.out.println("Digite a sinopse do filme:");
                 plot = reader.nextLine();
                 movieBuilder.setPlot(plot);
                 break;
 
-            case 5: // FIND BY CAST
+            case 5: // FIND BY CAST: Encontra um filme usando o elenco
+                // Solicita os nomes dos membros do elenco e divide-os em um array    
                 System.out.println("Digite os nomes dos membros do elenco (separados por vírgula):");
                 String castInput = reader.nextLine();
 
                 // Regex que lida com ", " ou ","
                 String[] castArray = castInput.split(",\\s*");
+                // Regex que lida com ", " ou ","
                 
                 // Iterando sobre cada substring e passando-a para o método addValues
                 for (String castItem : castArray) {
@@ -123,7 +151,8 @@ public class Main {
                 }
                 break;
 
-            case 6: // FIND BY GENRES
+            case 6: // FIND BY GENRES: Encontra um filme usando genero
+                // Solicita o gênero do filme e divide-os em um array    
                 System.out.println("Digite o gênero do filme:");
                 String genreInput = reader.nextLine();
                 
@@ -155,14 +184,18 @@ public class Main {
         System.out.println("\nBEM-VINDO AO PROTO FILMES!\n");
 
         try {
+            // Cria um socket para se conectar ao servidor na porta 8080 do localhost
             socket = new Socket("localhost", 8080);
+             // Obtém o OutputStream do socket para enviar dados ao servidor
             outputStream = socket.getOutputStream();
             dataOutputStream = new DataOutputStream(outputStream);
-
+            // Obtém o InputStream do socket para receber dados do servidor
             inputStream = socket.getInputStream();
             dataInputStream = new DataInputStream(inputStream);
 
+            // Loop infinito para manter a interação com o usuário
             while (true) {
+                // Exibe o menu de opções para o usuário
                 System.out.print("""
                         Digite o número da opção desejada:
                         ---------------------------------------
@@ -176,12 +209,14 @@ public class Main {
                         ---------------------------------------
                         """);
 
+                // Lê a escolha do usuário e converte para um inteiro
                 choise = Integer.parseInt(reader.nextLine());
 
                 // Reinicializando o builder a cada iteração do laço
                 movieBuilder = Movies.Movie.newBuilder();
                 movieFilterBuilder = Movies.MovieFilters.newBuilder();
 
+                //converte a escolha para o metodo
                 currentMethod = conversor(choise);
 
                 if (currentMethod == Methods.exit) {
@@ -192,9 +227,13 @@ public class Main {
                     break;
                 }
                 
+                // Chama o método handleOption para processar a escolha do usuário
+                // Passa os builders de filme e filtro, a escolha do usuário e o leitor de entrada
                 handleOption(movieBuilder, movieFilterBuilder, choise, reader);
                 
+                // Constrói o objeto de filtro de filmes a partir do builder
                 Movies.MovieFilters filter = movieFilterBuilder.build();
+                // Constrói o objeto de filme a partir do builder
                 Movies.Movie movie = movieBuilder.build();
                 
                 // Criando uma nova instância de Requisição usando o Builder
