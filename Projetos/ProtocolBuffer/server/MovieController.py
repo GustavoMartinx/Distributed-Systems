@@ -1,3 +1,9 @@
+# Autores: Christofer Daniel, Diogo Rodrigues e Gustavo Martins
+# Data: 21/08/2024
+
+# Este código implementa a camada de controller para o sistema de consulta de filmes
+
+
 from Movies_pb2 import Response
 from Movies_pb2 import Movie
 

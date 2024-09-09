@@ -1,3 +1,9 @@
+# Autores: Christofer Daniel, Diogo Rodrigues e Gustavo Martins
+# Data: 21/08/2024
+
+# Este código implementa a camada de comunicação com o banco de dados para o sistema de consulta de filmes
+
+
 from google.protobuf.json_format import MessageToDict
 from pymongo.mongo_client import MongoClient
 from pymongo.server_api import ServerApi

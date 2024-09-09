@@ -1,3 +1,12 @@
+# Autores: Christofer Daniel, Diogo Rodrigues e Gustavo Martins
+# Data: 21/08/2024
+
+# Este código é a classe principal que implementa o server do sistema de consulta de filmes
+# Esse código usa protobuffs para implementar a conversão de mensagens entre o client e o server
+ 
+
+
+
 import socket
 import struct
 import sys

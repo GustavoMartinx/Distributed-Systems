@@ -1,3 +1,8 @@
+# Autores: Christofer Daniel, Diogo Rodrigues e Gustavo Martins
+# Data: 21/08/2024
+
+# Este código implementa a camada de serviço para o sistema de consulta de filmes
+
 from google.protobuf.json_format import ParseDict
 from Movies_pb2 import Movie
 
