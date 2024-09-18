@@ -1,6 +1,6 @@
 # Projetos Práticos
 
-Este diretório contém todos os projetos práticos de codificação desenvolvidos durante a disciplina de Sistemas Distribuídos (IC7A_CM) ministrada pelo professor [Dr. Rodrigo Campiolo](http://paginapessoal.utfpr.edu.br/rcampiolo).
+Este diretório contém alguns dos projetos práticos de codificação desenvolvidos durante a disciplina de Sistemas Distribuídos (OPT021) ministrada pelo professor [Dr. Rodrigo Campiolo](http://paginapessoal.utfpr.edu.br/rcampiolo).
 
 Neste documento, é dada uma visão geral sobre cada projeto. Nesse sentido, dentro de cada pasta respectiva a um projeto, encontra-se não só a especificação daquele trabalho, mas também um arquivo `README.md` com mais detalhes a respeito dele.
 
