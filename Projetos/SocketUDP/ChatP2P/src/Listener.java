@@ -1,5 +1,10 @@
 package src;
 
+/*
+ * Listener: Thread responsável por receber e processar as requisições do
+ * processo peer remoto.
+*/
+
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
@@ -7,13 +12,14 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 
 public class Listener extends Thread {
+
     DatagramSocket datagramSocket;
-    int sendPort;
+    int peerPort;
     String[] types = { "normal", "emoji", "url", "ECHO" };
 
-    public Listener(DatagramSocket socket, int sendPort) {
+    public Listener(DatagramSocket socket, int peerPort) {
         this.datagramSocket = socket;
-        this.sendPort = sendPort;
+        this.peerPort = peerPort;
     }
 
     @Override
@@ -22,24 +28,23 @@ public class Listener extends Thread {
         try {
             while (true) {
                 byte[] buffer = new byte[1000];
-                DatagramPacket dgramPacket = new DatagramPacket(buffer, buffer.length);
+                DatagramPacket receivedDgramPkt = new DatagramPacket(buffer, buffer.length);
 
-                this.datagramSocket.receive(dgramPacket);
+                this.datagramSocket.receive(receivedDgramPkt);
 
-                String message = new String(dgramPacket.getData(), 0, dgramPacket.getLength());
-                if (message.equals("exit")) {
-                    break;
+                String msg = new String(receivedDgramPkt.getData(), 0, receivedDgramPkt.getLength());
+                if (msg.equals("exit")) break;
+
+                Message message = unmarshallPacket(receivedDgramPkt);
+
+                if (message.typeMessage == 4) {
+                    executeEcho(this.datagramSocket, receivedDgramPkt, this.peerPort);
+                    continue;
                 }
 
-                Message response = extractMessage(dgramPacket);
-
-                if (response.typeMessage == 4) {
-                    executeEcho(this.datagramSocket, dgramPacket, this.sendPort);
-                }
-
-                if (0 < response.typeMessage && response.typeMessage < 5) {
+                if (0 < message.typeMessage && message.typeMessage < 5) {
                     System.out.println(
-                            response.nickname + "[" + this.types[response.typeMessage - 1] + "]: " + response.message);
+                            message.nickname + "[" + this.types[message.typeMessage - 1] + "]: " + message.message);
                 }
             }
         } catch (IOException ioe) {
@@ -50,21 +55,25 @@ public class Listener extends Thread {
         }
     }
 
-    protected static void executeEcho(DatagramSocket socket, DatagramPacket pkg, int port)
+    protected static void executeEcho(DatagramSocket socket, DatagramPacket pkg, int peerPort)
             throws UnknownHostException, IOException {
-        byte[] data2 = pkg.getData();
-        data2[0] = 1;
-        InetAddress serverAddr = InetAddress.getByName("127.0.0.1");
-        DatagramPacket request = new DatagramPacket(data2, data2.length, serverAddr, port);
+        
+        // Enviando como resposta echo o mesmo pacote recebido (por conveniência)
+        // TODO: método para criar pacote de resposta echo
+        byte[] echoPayload = pkg.getData();
+        echoPayload[0] = 1;
+        
+        InetAddress peerAddr = pkg.getAddress();
+        DatagramPacket echoPacket = new DatagramPacket(echoPayload, echoPayload.length, peerAddr, peerPort);
 
-        socket.send(request);
+        socket.send(echoPacket);
     }
 
-    protected static Message extractMessage(DatagramPacket pkg) {
+    protected static Message unmarshallPacket(DatagramPacket pkg) {
         byte[] data = pkg.getData();
         int offset = pkg.getOffset();
 
-        // Extract fields from the received data
+        // Obtendo os campos do pacote
         int messageType = data[offset++];
         byte nicknameLength = data[offset++];
         byte[] nicknameBytes = new byte[nicknameLength];
@@ -74,7 +83,6 @@ public class Listener extends Thread {
         byte[] messageBytes = new byte[messageLength];
         System.arraycopy(data, offset, messageBytes, 0, messageLength);
 
-        // Convert bytes to strings
         String nickname = new String(nicknameBytes);
         String msg = new String(messageBytes);
 

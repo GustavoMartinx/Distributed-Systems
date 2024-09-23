@@ -1,5 +1,9 @@
 package src;
 
+/*
+ * Estrutura de dados padronizada para troca de mensagens.
+*/
+
 public class Message {
     public int typeMessage;
     public int sizeNickname;
