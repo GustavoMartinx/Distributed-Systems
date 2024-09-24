@@ -1,2 +1,0 @@
-javac -cp ".:protobuf-java-3.24.4.jar:grpc-stub-1.62.2.jar:grpc-netty-shaded-1.62.2.jar:grpc-protobuf-1.62.2.jar:grpc-api-1.62.2.jar:grpc-core-1.62.2.jar:javax.annotation-api-1.3.2.jar:guava-33.3.0-jre.jar:grpc-protobuf-lite-1.62.2.jar:perfmark-api-0.27.0.jar" Main.java
-java -cp ".:protobuf-java-3.24.4.jar:grpc-stub-1.62.2.jar:grpc-netty-shaded-1.62.2.jar:grpc-protobuf-1.62.2.jar:grpc-api-1.62.2.jar:grpc-core-1.62.2.jar:javax.annotation-api-1.3.2.jar:guava-33.3.0-jre.jar:grpc-protobuf-lite-1.62.2.jar:perfmark-api-0.27.0.jar" Main
